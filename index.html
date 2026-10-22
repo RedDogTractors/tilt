@@ -37,7 +37,7 @@
   #angle.ok{color:var(--ok)} #angle.bad{color:var(--bad)}
   #angle.stale{opacity:.35}
   #dir{font-size:20px;color:var(--muted);min-height:1.2em}
-  svg#gauge{height:min(34vh,90vw);width:auto;flex:none}
+  svg#gauge{height:min(38vh,100vw);width:auto;max-width:100%;flex:none}
 
   footer{display:flex;gap:10px;padding:10px 0 14px}
   footer button{flex:1;padding:16px 8px;font-size:17px}
@@ -74,15 +74,28 @@
 
 <main>
   <div id="label">Pitch</div>
-  <div id="angle" class="stale">--.-<span class="deg">°</span></div>
+  <div id="angle" class="stale">--<span class="deg">°</span></div>
   <div id="dir"></div>
-  <svg id="gauge" viewBox="-14 -110 128 220" aria-hidden="true">
+  <svg id="gauge" viewBox="-46 -110 160 220" aria-hidden="true">
     <path d="M 0 -100 A 100 100 0 0 1 0 100" fill="none" stroke="#2a3038" stroke-width="2"/>
     <g id="ticks"></g>
     <line x1="-10" y1="0" x2="106" y2="0" stroke="#2a3038" stroke-width="1" stroke-dasharray="4 4"/>
+    <!-- loader arm (fixed) -->
+    <path d="M -46 -46 L -6 -6" stroke="#4a5462" stroke-width="12" stroke-linecap="round"/>
+    <!-- bucket (rotates with the angle; floor/cutting edge = 0° line) -->
     <g id="needle">
-      <line x1="0" y1="0" x2="92" y2="0" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
-      <circle cx="92" cy="0" r="7" fill="currentColor"/>
+      <line x1="0" y1="0" x2="96" y2="0" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
+      <!-- side plate -->
+      <path d="M 80 0 L 36 0 C 16 0 6 -12 6 -32 L 6 -56 L 18 -62 L 52 -58 Z" fill="currentColor" fill-opacity=".22"
+            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+      <!-- inside of bucket (curved floor/back) -->
+      <path d="M 74 -3 L 38 -4 C 22 -4 14 -14 14 -30 L 14 -54" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
+      <!-- cutting edge -->
+      <line x1="36" y1="0" x2="84" y2="0" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+      <!-- mounting brackets + pins on the back -->
+      <path d="M 6 -6 L -2 -2 L 0 0 M 6 -44 L -4 -42" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="-4" cy="-42" r="4" fill="#0b0d10" stroke="currentColor" stroke-width="2.5"/>
+      <circle cx="96" cy="0" r="4" fill="currentColor"/>
     </g>
     <circle cx="0" cy="0" r="6" fill="#f2f4f7"/>
   </svg>
@@ -118,10 +131,6 @@
     <div class="row">
       <div><label>Alarm beyond ±°</label><small>Number turns red past this angle (0 = off)</small></div>
       <input type="number" id="alarm" min="0" max="180" step="1">
-    </div>
-    <div class="row">
-      <div><label>Decimals</label></div>
-      <div class="seg" id="segDec"><button data-v="0">0</button><button data-v="1">1</button></div>
     </div>
     <div class="row">
       <div><label>Smoothing</label><small>Steadies the reading on a running tractor</small></div>
@@ -162,6 +171,7 @@
   const DEFAULTS = { axis:'pitch', invert:false, zero:0, tol:1, alarm:0, dec:1, smooth:2, rate:6, showAll:false };
   let S = { ...DEFAULTS };
   try { Object.assign(S, JSON.parse(localStorage.getItem('witTilt') || '{}')); } catch (e) {}
+  S.dec = 0;                                   // whole degrees only
   const save = () => { try { localStorage.setItem('witTilt', JSON.stringify(S)); } catch (e) {} };
 
   // ---- state ----
@@ -205,7 +215,7 @@
   function render() {
     const a = displayAngle();
     el.label.textContent = S.axis === 'roll' ? 'Roll · X axis' : 'Pitch · Y axis';
-    if (a === null) { el.angle.innerHTML = '--.-<span class="deg">°</span>'; return; }
+    if (a === null) { el.angle.innerHTML = '--<span class="deg">°</span>'; return; }
     const shown = Number(a.toFixed(S.dec));
     const txt = (Object.is(shown, -0) ? 0 : shown).toFixed(S.dec);
     el.angle.innerHTML = (shown > 0 ? '+' : '') + txt + '<span class="deg">°</span>';
@@ -367,7 +377,6 @@
     });
   }
   seg('segAxis', 'axis', v => v);
-  seg('segDec', 'dec', Number);
   seg('segSmooth', 'smooth', Number);
   seg('segRate', 'rate', Number);
   $('invert').onchange = e => { S.invert = e.target.checked; save(); render(); };
@@ -377,7 +386,7 @@
 
   function syncSettings() {
     const mark = (id, v) => $(id).querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.dataset.v === String(v)));
-    mark('segAxis', S.axis); mark('segDec', S.dec); mark('segSmooth', S.smooth); mark('segRate', S.rate);
+    mark('segAxis', S.axis); mark('segSmooth', S.smooth); mark('segRate', S.rate);
     $('invert').checked = S.invert; $('showAll').checked = S.showAll;
     $('tol').value = S.tol; $('alarm').value = S.alarm;
     el.zeroVal.textContent = S.zero.toFixed(1);
