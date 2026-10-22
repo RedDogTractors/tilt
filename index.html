@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b0d10">
+<title>Tilt Angle</title>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#161a1f; --line:#2a3038; --text:#f2f4f7; --muted:#8a94a3;
+    --accent:#3d8bfd; --ok:#2fbf71; --warn:#f5a524; --bad:#ef4444;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
+    overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+  body{display:flex;flex-direction:column;
+    padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left))}
+
+  header{display:flex;align-items:center;gap:10px;padding:10px 0}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+  .dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .dot.wait{background:var(--warn)}
+  #status{font-size:14px;color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer}
+  button:active{transform:scale(.97)}
+  button.primary{background:var(--accent);border-color:var(--accent)}
+  button.icon{padding:10px 12px}
+
+  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;gap:8px}
+  #label{font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  #angle{font-variant-numeric:tabular-nums;font-weight:700;line-height:.9;
+    font-size:min(27vw,30vh);white-space:nowrap;transition:color .2s}
+  #angle .deg{font-size:.45em;vertical-align:.75em;margin-left:.02em}
+  #angle.ok{color:var(--ok)} #angle.bad{color:var(--bad)}
+  #angle.stale{opacity:.35}
+  #dir{font-size:20px;color:var(--muted);min-height:1.2em}
+  svg#gauge{height:min(34vh,90vw);width:auto;flex:none}
+
+  footer{display:flex;gap:10px;padding:10px 0 14px}
+  footer button{flex:1;padding:16px 8px;font-size:17px}
+
+  /* settings sheet */
+  #sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  #sheet.open{display:flex}
+  .card{background:var(--panel);border-top-left-radius:18px;border-top-right-radius:18px;width:100%;max-width:560px;
+    padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+  .card h2{margin:0 0 12px;font-size:20px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .row:last-of-type{border-bottom:none}
+  .row label{font-size:16px}
+  .row small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+  select,input[type=number]{font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--line);
+    border-radius:10px;padding:8px 10px;width:110px}
+  input[type=checkbox]{width:24px;height:24px;accent-color:var(--accent)}
+  .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{border:none;border-radius:0;padding:8px 10px;font-size:14px;background:var(--bg)}
+  .seg button.sel{background:var(--accent)}
+  #raw{font:13px ui-monospace,Menlo,monospace;color:var(--muted);margin-top:10px}
+  #msg{display:none;text-align:center;color:var(--muted);font-size:15px;max-width:420px;line-height:1.4}
+  #msg.show{display:block}
+  #msg b{color:var(--text)}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="dot" id="dot"></span>
+  <span id="status">Not connected</span>
+  <button class="icon" id="btnSettings" aria-label="Settings">⚙︎</button>
+</header>
+
+<main>
+  <div id="label">Pitch</div>
+  <div id="angle" class="stale">--.-<span class="deg">°</span></div>
+  <div id="dir"></div>
+  <svg id="gauge" viewBox="-14 -110 128 220" aria-hidden="true">
+    <path d="M 0 -100 A 100 100 0 0 1 0 100" fill="none" stroke="#2a3038" stroke-width="2"/>
+    <g id="ticks"></g>
+    <line x1="-10" y1="0" x2="106" y2="0" stroke="#2a3038" stroke-width="1" stroke-dasharray="4 4"/>
+    <g id="needle">
+      <line x1="0" y1="0" x2="92" y2="0" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="92" cy="0" r="7" fill="currentColor"/>
+    </g>
+    <circle cx="0" cy="0" r="6" fill="#f2f4f7"/>
+  </svg>
+  <div id="msg"></div>
+</main>
+
+<footer>
+  <button class="primary" id="btnConnect">Connect</button>
+  <button id="btnZero">Zero</button>
+</footer>
+
+<div id="sheet">
+  <div class="card">
+    <h2>Settings</h2>
+    <div class="row">
+      <div><label>Axis</label><small>Pick the one that moves with the bucket</small></div>
+      <div class="seg" id="segAxis">
+        <button data-v="roll">Roll (X)</button><button data-v="pitch">Pitch (Y)</button>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Reverse direction</label><small>Flip + / − (sensor mounted backwards)</small></div>
+      <input type="checkbox" id="invert">
+    </div>
+    <div class="row">
+      <div><label>Zero offset</label><small>Set with the Zero button; clear to show true angle</small></div>
+      <button id="btnClearZero">Clear (<span id="zeroVal">0.0</span>°)</button>
+    </div>
+    <div class="row">
+      <div><label>Level band ±°</label><small>Number turns green inside this band</small></div>
+      <input type="number" id="tol" min="0" max="45" step="0.5">
+    </div>
+    <div class="row">
+      <div><label>Alarm beyond ±°</label><small>Number turns red past this angle (0 = off)</small></div>
+      <input type="number" id="alarm" min="0" max="180" step="1">
+    </div>
+    <div class="row">
+      <div><label>Decimals</label></div>
+      <div class="seg" id="segDec"><button data-v="0">0</button><button data-v="1">1</button></div>
+    </div>
+    <div class="row">
+      <div><label>Smoothing</label><small>Steadies the reading on a running tractor</small></div>
+      <div class="seg" id="segSmooth" style="flex:none">
+        <button data-v="0">Off</button><button data-v="1">Low</button><button data-v="2">Med</button><button data-v="3">High</button>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Sensor rate</label><small>Sent to the sensor on connect</small></div>
+      <div class="seg" id="segRate"><button data-v="6">10 Hz</button><button data-v="7">20 Hz</button></div>
+    </div>
+    <div class="row">
+      <div><label>Show all Bluetooth devices</label><small>Use if the sensor doesn't appear in the list</small></div>
+      <input type="checkbox" id="showAll">
+    </div>
+    <div class="row">
+      <div><label>Demo mode</label><small>Simulated data, no sensor needed</small></div>
+      <button id="btnDemo">Start demo</button>
+    </div>
+    <div id="raw">Roll —  Pitch —  Yaw —</div>
+    <div style="margin-top:16px"><button class="primary" id="btnClose" style="width:100%">Done</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---- WIT Motion BLE 5.0 (WT901BLECL5.0) ----
+  const SVC    = '0000ffe5-0000-1000-8000-00805f9a34fb';
+  const NOTIFY = '0000ffe4-0000-1000-8000-00805f9a34fb';
+  const WRITE  = '0000ffe9-0000-1000-8000-00805f9a34fb';
+
+  const $ = id => document.getElementById(id);
+  const el = { dot:$('dot'), status:$('status'), label:$('label'), angle:$('angle'), dir:$('dir'),
+    needle:$('needle'), gauge:$('gauge'), msg:$('msg'), sheet:$('sheet'), raw:$('raw'), zeroVal:$('zeroVal'),
+    btnConnect:$('btnConnect'), btnDemo:$('btnDemo') };
+
+  // ---- settings (per-device convenience; page works without storage) ----
+  const DEFAULTS = { axis:'pitch', invert:false, zero:0, tol:1, alarm:0, dec:1, smooth:2, rate:6, showAll:false };
+  let S = { ...DEFAULTS };
+  try { Object.assign(S, JSON.parse(localStorage.getItem('witTilt') || '{}')); } catch (e) {}
+  const save = () => { try { localStorage.setItem('witTilt', JSON.stringify(S)); } catch (e) {} };
+
+  // ---- state ----
+  let device = null, writeChar = null, wantConnected = false, demoTimer = null;
+  let rx = new Uint8Array(0);
+  let last = { roll:null, pitch:null, yaw:null };
+  let smoothed = null, lastPacketAt = 0;
+
+  const wrap = a => { a = ((a + 180) % 360 + 360) % 360 - 180; return a === -180 ? 180 : a; };
+
+  // ---- packet parsing: 20 bytes, 0x55 0x61, then 9 int16 LE ----
+  function feed(bytes) {
+    const merged = new Uint8Array(rx.length + bytes.length);
+    merged.set(rx); merged.set(bytes, rx.length); rx = merged;
+    for (;;) {
+      let i = -1;
+      for (let k = 0; k + 1 < rx.length; k++) if (rx[k] === 0x55 && rx[k+1] === 0x61) { i = k; break; }
+      if (i < 0) { rx = rx.length && rx[rx.length-1] === 0x55 ? rx.slice(-1) : new Uint8Array(0); return; }
+      if (rx.length - i < 20) { rx = rx.slice(i); return; }
+      const dv = new DataView(rx.buffer, rx.byteOffset + i, 20);
+      const k = 180 / 32768;
+      onAngles(dv.getInt16(14, true) * k, dv.getInt16(16, true) * k, dv.getInt16(18, true) * k);
+      rx = rx.slice(i + 20);
+    }
+  }
+
+  function onAngles(roll, pitch, yaw) {
+    last = { roll, pitch, yaw }; lastPacketAt = performance.now();
+    let a = S.axis === 'roll' ? roll : pitch;
+    const alpha = [1, 0.5, 0.25, 0.1][S.smooth] ?? 0.25;
+    smoothed = smoothed === null ? a : wrap(smoothed + alpha * wrap(a - smoothed));
+    render();
+  }
+
+  function displayAngle() {
+    if (smoothed === null) return null;
+    let a = wrap(smoothed - S.zero);
+    return S.invert ? -a : a;
+  }
+
+  function render() {
+    const a = displayAngle();
+    el.label.textContent = S.axis === 'roll' ? 'Roll · X axis' : 'Pitch · Y axis';
+    if (a === null) { el.angle.innerHTML = '--.-<span class="deg">°</span>'; return; }
+    const shown = Number(a.toFixed(S.dec));
+    const txt = (Object.is(shown, -0) ? 0 : shown).toFixed(S.dec);
+    el.angle.innerHTML = (shown > 0 ? '+' : '') + txt + '<span class="deg">°</span>';
+    const abs = Math.abs(a);
+    el.angle.classList.toggle('ok', abs <= S.tol);
+    el.angle.classList.toggle('bad', S.alarm > 0 && abs > S.alarm);
+    el.dir.textContent = abs <= S.tol ? 'Level' : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
+    const col = el.angle.classList.contains('bad') ? 'var(--bad)' : el.angle.classList.contains('ok') ? 'var(--ok)' : 'var(--accent)';
+    el.needle.style.color = col;
+    el.needle.setAttribute('transform', `rotate(${-Math.max(-90, Math.min(90, a))})`);
+    el.raw.textContent = `Roll ${last.roll?.toFixed(1) ?? '—'}°   Pitch ${last.pitch?.toFixed(1) ?? '—'}°   Yaw ${last.yaw?.toFixed(1) ?? '—'}°`;
+  }
+
+  // stale-data indicator
+  setInterval(() => {
+    el.angle.classList.toggle('stale', !lastPacketAt || performance.now() - lastPacketAt > 1500);
+  }, 500);
+
+  function setStatus(text, state) {
+    el.status.textContent = text;
+    el.dot.className = 'dot' + (state ? ' ' + state : '');
+  }
+
+  // ---- Bluetooth ----
+  async function connect() {
+    if (!navigator.bluetooth) { showNoBluetooth(); return; }
+    stopDemo();
+    try {
+      const opts = S.showAll
+        ? { acceptAllDevices: true, optionalServices: [SVC] }
+        : { filters: [{ namePrefix: 'WT' }, { services: [SVC] }], optionalServices: [SVC] };
+      device = await navigator.bluetooth.requestDevice(opts);
+      device.addEventListener('gattserverdisconnected', onDisconnected);
+      wantConnected = true;
+      await openGatt();
+    } catch (e) {
+      if (e && e.name === 'NotFoundError') setStatus('No device chosen', '');
+      else setStatus('Error: ' + (e && e.message || e), '');
+    }
+  }
+
+  async function openGatt() {
+    setStatus('Connecting to ' + (device.name || 'sensor') + '…', 'wait');
+    const server = await device.gatt.connect();
+    const svc = await server.getPrimaryService(SVC);
+    const notify = await svc.getCharacteristic(NOTIFY);
+    try { writeChar = await svc.getCharacteristic(WRITE); } catch (e) { writeChar = null; }
+    rx = new Uint8Array(0);
+    notify.addEventListener('characteristicvaluechanged', ev => {
+      const v = ev.target.value; feed(new Uint8Array(v.buffer, v.byteOffset, v.byteLength));
+    });
+    await notify.startNotifications();
+    setStatus(device.name || 'Sensor connected', 'on');
+    el.btnConnect.textContent = 'Disconnect';
+    sendRate();
+    keepAwake();
+  }
+
+  async function send(bytes) {
+    if (!writeChar) return;
+    const data = new Uint8Array(bytes);
+    try {
+      if (writeChar.writeValueWithoutResponse) await writeChar.writeValueWithoutResponse(data);
+      else await writeChar.writeValue(data);
+    } catch (e) { /* non-fatal */ }
+  }
+  async function sendRate() {
+    await send([0xFF, 0xAA, 0x69, 0x88, 0xB5]);           // unlock (ignored by units that don't need it)
+    await new Promise(r => setTimeout(r, 100));
+    await send([0xFF, 0xAA, 0x03, S.rate, 0x00]);        // output rate (not saved to flash)
+  }
+
+  async function onDisconnected() {
+    lastPacketAt = 0;
+    el.btnConnect.textContent = 'Connect';
+    if (!wantConnected) { setStatus('Disconnected', ''); return; }
+    for (let attempt = 1; attempt <= 10 && wantConnected; attempt++) {
+      setStatus(`Signal lost — reconnecting (${attempt})…`, 'wait');
+      try { await openGatt(); return; } catch (e) { await new Promise(r => setTimeout(r, 2000)); }
+    }
+    setStatus('Disconnected — tap Connect', '');
+  }
+
+  function disconnect() {
+    wantConnected = false;
+    if (device && device.gatt.connected) device.gatt.disconnect();
+    setStatus('Disconnected', ''); el.btnConnect.textContent = 'Connect';
+  }
+
+  function showNoBluetooth() {
+    el.msg.innerHTML = 'This browser can\'t talk to Bluetooth sensors.<br>On iPhone, open this page in the free <b>Bluefy</b> browser app. You can still try <b>Demo mode</b> in Settings.';
+    el.msg.classList.add('show');
+    setStatus('Bluetooth not available here', '');
+  }
+
+  // ---- keep the screen on while connected (where supported) ----
+  let wakeLock = null;
+  async function keepAwake() {
+    try { if ('wakeLock' in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => wakeLock = null); } } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && (wantConnected || demoTimer)) keepAwake();
+  });
+
+  // ---- demo mode: builds real 0x55 0x61 packets and runs them through the parser ----
+  function startDemo() {
+    if (wantConnected) disconnect();
+    const t0 = performance.now();
+    demoTimer = setInterval(() => {
+      const t = (performance.now() - t0) / 1000;
+      const pitch = 35 * Math.sin(t * 0.5) + (Math.random() - .5) * 1.5;
+      const roll  = 8 * Math.sin(t * 0.23) + (Math.random() - .5) * 1.5;
+      const p = new Uint8Array(20), dv = new DataView(p.buffer);
+      p[0] = 0x55; p[1] = 0x61;
+      const enc = d => Math.round(d / 180 * 32768);
+      dv.setInt16(14, enc(roll), true); dv.setInt16(16, enc(pitch), true); dv.setInt16(18, enc(12), true);
+      feed(p.slice(0, 7)); feed(p.slice(7));               // split on purpose to exercise reassembly
+    }, 100);
+    el.msg.classList.remove("show"); setStatus("Demo mode", "on"); el.btnDemo.textContent = 'Stop demo'; keepAwake();
+  }
+  function stopDemo() {
+    if (!demoTimer) return;
+    clearInterval(demoTimer); demoTimer = null; lastPacketAt = 0;
+    setStatus('Not connected', ''); el.btnDemo.textContent = 'Start demo';
+  }
+
+  // ---- gauge ticks ----
+  (function ticks() {
+    const g = $('ticks'); let s = '';
+    // ticks along the semicircle: angle θ from 0 (right) to 180 (left)
+    for (let th = -90; th <= 90; th += 15) {
+      const r = th * Math.PI / 180, major = Math.abs(th) % 45 === 0, len = major ? 12 : 6;
+      const x1 = 100 * Math.cos(r), y1 = -100 * Math.sin(r);
+      const x2 = (100 - len) * Math.cos(r), y2 = -(100 - len) * Math.sin(r);
+      s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#4a5462" stroke-width="${major ? 2 : 1}"/>`;
+    }
+    g.innerHTML = s;
+  })();
+
+  // ---- UI wiring ----
+  el.btnConnect.onclick = () => wantConnected ? disconnect() : connect();
+  $('btnZero').onclick = () => {
+    if (smoothed === null) return;
+    S.zero = smoothed; save(); render(); syncSettings();
+  };
+  $('btnSettings').onclick = () => { syncSettings(); el.sheet.classList.add('open'); };
+  $('btnClose').onclick = () => el.sheet.classList.remove('open');
+  el.sheet.onclick = e => { if (e.target === el.sheet) el.sheet.classList.remove('open'); };
+  $('btnClearZero').onclick = () => { S.zero = 0; save(); render(); syncSettings(); };
+  el.btnDemo.onclick = () => demoTimer ? stopDemo() : startDemo();
+
+  function seg(id, key, parse) {
+    $(id).querySelectorAll('button').forEach(b => b.onclick = () => {
+      S[key] = parse(b.dataset.v); save();
+      if (key === 'axis') { smoothed = null; S.zero = 0; }      // new axis → new reference
+      if (key === 'rate') sendRate();
+      syncSettings(); render();
+    });
+  }
+  seg('segAxis', 'axis', v => v);
+  seg('segDec', 'dec', Number);
+  seg('segSmooth', 'smooth', Number);
+  seg('segRate', 'rate', Number);
+  $('invert').onchange = e => { S.invert = e.target.checked; save(); render(); };
+  $('showAll').onchange = e => { S.showAll = e.target.checked; save(); };
+  $('tol').onchange = e => { S.tol = Math.max(0, Number(e.target.value) || 0); save(); render(); };
+  $('alarm').onchange = e => { S.alarm = Math.max(0, Number(e.target.value) || 0); save(); render(); };
+
+  function syncSettings() {
+    const mark = (id, v) => $(id).querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.dataset.v === String(v)));
+    mark('segAxis', S.axis); mark('segDec', S.dec); mark('segSmooth', S.smooth); mark('segRate', S.rate);
+    $('invert').checked = S.invert; $('showAll').checked = S.showAll;
+    $('tol').value = S.tol; $('alarm').value = S.alarm;
+    el.zeroVal.textContent = S.zero.toFixed(1);
+  }
+
+  syncSettings(); render();
+  if (!navigator.bluetooth) showNoBluetooth();
+
+  // test hook
+  window.__wit = { feed, get angle() { return displayAngle(); }, S };
+})();
+</script>
+</body>
+</html>
