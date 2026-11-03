@@ -45,6 +45,28 @@
   #angle.stale{opacity:.35}
   #dir{font-size:20px;color:var(--muted);min-height:1.2em}
   svg#gauge{height:min(38vh,100vw);width:auto;max-width:100%;flex:none}
+  .readout{display:flex;flex-direction:column;align-items:center;gap:8px}
+
+  /* landscape phone: readout and bucket side by side */
+  @media (orientation: landscape) and (max-height: 540px){
+    header{padding:4px 0 0;gap:10px}
+    .logo{height:30px}
+    .product{font-size:18px}
+    button.icon{padding:6px 10px}
+    .statusbar{padding:0 0 4px}
+    main{flex-direction:row;justify-content:space-evenly;gap:12px}
+    .readout{flex:1 1 50%;justify-content:center}
+    #angle{font-size:min(17vw,36vh)}
+    #dir{font-size:18px}
+    svg#gauge{flex:0 1 auto;height:calc(100vh - 150px);min-height:140px;max-width:48vw}
+    footer{padding:6px 0 8px}
+    footer button{padding:12px 8px}
+    body #splash{padding-top:calc(env(safe-area-inset-top) + 8px)}
+    body #splash .slogo{width:auto;height:13vh}
+    body #splash .product{font-size:20px;margin:4px 0 0}
+    body #splash h2{margin:4px 0 6px;font-size:15px}
+    body #btnAccept{margin-top:8px;padding:12px}
+  }
 
   footer{display:flex;gap:10px;padding:10px 0 14px}
   footer button{flex:1;padding:16px 8px;font-size:17px}
@@ -97,9 +119,12 @@
 </div>
 
 <main>
+  <div class="readout">
   <div id="label">Pitch</div>
   <div id="angle" class="stale">--<span class="deg">°</span></div>
   <div id="dir"></div>
+  <div id="msg"></div>
+  </div>
   <svg id="gauge" viewBox="-46 -110 160 220" aria-hidden="true">
     <path d="M 0 -100 A 100 100 0 0 1 0 100" fill="none" stroke="#2a3038" stroke-width="2"/>
     <g id="ticks"></g>
@@ -123,7 +148,6 @@
     </g>
     <circle cx="0" cy="0" r="6" fill="#f2f4f7"/>
   </svg>
-  <div id="msg"></div>
 </main>
 
 <footer>
