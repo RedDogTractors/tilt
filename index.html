@@ -18,6 +18,7 @@
   body{display:flex;flex-direction:column;
     padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left))}
 
+  /* header */
   header{display:flex;align-items:center;gap:12px;padding:10px 0 4px}
   .logo{height:40px;width:auto;display:block}
   .brand{flex:1;min-width:0}
@@ -37,65 +38,63 @@
   button.primary{background:var(--accent);border-color:var(--accent)}
   button.icon{padding:10px 12px}
 
-  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;gap:8px}
-  #label{font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  #angle{font-variant-numeric:tabular-nums;font-weight:700;line-height:.9;
-    font-size:min(27vw,30vh);white-space:nowrap;transition:color .2s}
-  #angle .deg{font-size:.45em;vertical-align:.75em;margin-left:.02em}
-  #angle.ok{color:var(--ok)} #angle.bad{color:var(--bad)}
-  #angle.stale{opacity:.35}
-  #dir{font-size:20px;color:var(--muted);min-height:1.2em}
-  svg#gauge{height:min(38vh,100vw);width:auto;max-width:100%;flex:none}
-  .readout{display:flex;flex-direction:column;align-items:center;gap:8px}
+  /* gauges */
+  main{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:space-evenly;gap:4px;position:relative;padding:4px 0}
+  .gauge{flex:1 1 0;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;border-radius:16px;
+    border:2px solid transparent;transition:border-color .2s}
+  .gauge svg{width:100%;height:100%;display:block}
+  .gauge.alarm{animation:alarmPulse 1s ease-in-out infinite}
+  @keyframes alarmPulse{0%,100%{border-color:rgba(255,59,48,.25)}50%{border-color:rgba(255,59,48,.95)}}
+  svg text{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif}
+  .num{font-weight:700;font-variant-numeric:tabular-nums;transition:fill .2s}
+  .cap{font-size:9px;letter-spacing:.18em;fill:var(--muted);font-weight:600}
+  .sub{font-size:11px;fill:var(--muted)}
+  .tl{font-size:8px;fill:#6f7680}
+  .stale .num,.stale .sub{opacity:.35}
 
-  /* landscape phone: readout and bucket side by side */
+  footer{display:flex;gap:10px;padding:10px 0 14px}
+  footer button{flex:1;padding:16px 8px;font-size:17px}
+
+  #msg{display:none;position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:min(440px,96%);z-index:5;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+    text-align:center;color:var(--muted);font-size:14px;line-height:1.4}
+  #msg.show{display:block}
+  #msg b{color:var(--text)}
+
+  /* landscape phone: compact header, gauges side by side */
   @media (orientation: landscape) and (max-height: 540px){
     header{padding:4px 0 2px;gap:10px;border-bottom:1px solid var(--line)}
+    .logo{height:30px}
+    .product{font-size:18px}
     .brand{flex:none}
     .hstatus{display:flex;align-items:center;gap:8px;flex:1;min-width:0;font-size:14px;color:var(--muted)}
     #status2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .land{display:inline-block;padding:8px 16px;font-size:15px;flex:none}
+    button.icon{padding:6px 10px}
     body.connected #btnConnect2{display:none}
     body .statusbar,body footer{display:none}
+    main{flex-direction:row;gap:8px}
     #msg{font-size:13px}
-    .logo{height:30px}
-    .product{font-size:18px}
-    button.icon{padding:6px 10px}
-    main{flex-direction:row;justify-content:space-evenly;gap:12px}
-    .readout{flex:1 1 50%;justify-content:center}
-    #angle{font-size:min(17vw,40vh)}
-    #dir{font-size:18px}
-    svg#gauge{flex:0 1 auto;height:calc(100vh - 70px - env(safe-area-inset-bottom));min-height:140px;max-width:48vw}
-    body #splash{padding-top:calc(env(safe-area-inset-top) + 8px)}
-    body #splash .slogo{width:auto;height:13vh}
-    body #splash .product{font-size:20px;margin:4px 0 0}
-    body #splash h2{margin:4px 0 6px;font-size:15px}
-    body #btnAccept{margin-top:8px;padding:12px}
   }
-
-  footer{display:flex;gap:10px;padding:10px 0 14px}
-  footer button{flex:1;padding:16px 8px;font-size:17px}
 
   /* settings sheet */
   #sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
   #sheet.open{display:flex}
   .card{background:var(--panel);border-top-left-radius:18px;border-top-right-radius:18px;width:100%;max-width:560px;
     padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
-  .card h2{margin:0 0 12px;font-size:20px}
+  .card h2{margin:0 0 4px;font-size:20px}
+  .card h3{margin:16px 0 0;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
-  .row:last-of-type{border-bottom:none}
   .row label{font-size:16px}
   .row small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
-  select,input[type=number]{font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--line);
-    border-radius:10px;padding:8px 10px;width:110px}
-  input[type=checkbox]{width:24px;height:24px;accent-color:var(--accent)}
-  .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  input[type=number]{font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--line);
+    border-radius:10px;padding:8px 10px;width:96px;flex:none}
+  input[type=checkbox]{width:24px;height:24px;accent-color:var(--accent);flex:none}
+  .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
   .seg button{border:none;border-radius:0;padding:8px 10px;font-size:14px;background:var(--bg)}
   .seg button.sel{background:var(--accent)}
   #raw{font:13px ui-monospace,Menlo,monospace;color:var(--muted);margin-top:10px}
-  #msg{display:none;text-align:center;color:var(--muted);font-size:15px;max-width:420px;line-height:1.4}
-  #msg.show{display:block}
-  #msg b{color:var(--text)}
+
   /* safety notice splash */
   #splash{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;
     padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 16px)}
@@ -109,6 +108,13 @@
   .legal p{margin:0 0 10px} .legal ul{margin:0 0 10px;padding-left:18px} .legal li{margin-bottom:6px}
   .legal .fine{font-size:12px;color:var(--muted)}
   #btnAccept{margin-top:14px;width:100%;max-width:560px;padding:16px;font-size:17px}
+  @media (orientation: landscape) and (max-height: 540px){
+    body #splash{padding-top:calc(env(safe-area-inset-top) + 8px)}
+    body #splash .slogo{width:auto;height:13vh}
+    body #splash .product{font-size:20px;margin:4px 0 0}
+    body #splash h2{margin:4px 0 6px;font-size:15px}
+    body #btnAccept{margin-top:8px;padding:12px}
+  }
 </style>
 </head>
 <body>
@@ -127,35 +133,79 @@
 </div>
 
 <main>
-  <div class="readout">
-  <div id="label">Pitch</div>
-  <div id="angle" class="stale">--<span class="deg">°</span></div>
-  <div id="dir"></div>
-  <div id="msg"></div>
+  <!-- ===== Tractor bank indicator (rear view) ===== -->
+  <div class="gauge stale" id="gBank">
+    <svg viewBox="-118 -124 236 246" aria-label="Tractor bank angle">
+      <text class="cap" x="-114" y="-113">TRACTOR BANK</text>
+      <g id="bankScale"></g>
+      <g id="bankAlarmZones"></g>
+      <!-- fixed level reference -->
+      <line x1="-112" y1="10" x2="112" y2="10" stroke="#3a3636" stroke-width="1" stroke-dasharray="4 4"/>
+      <path d="M 0 -96 L -6 -106 L 6 -106 Z" fill="#6f7680" transform="translate(0,6)"/>
+      <!-- tractor rotates about (0,10) -->
+      <g id="tractor">
+        <line x1="-84" y1="41" x2="84" y2="41" stroke="#6b5a48" stroke-width="3" stroke-linecap="round"/>
+        <!-- pointer to the scale -->
+        <path d="M 0 -82 L -6 -70 L 6 -70 Z" fill="currentColor"/>
+        <line x1="0" y1="-70" x2="0" y2="-64" stroke="currentColor" stroke-width="2"/>
+        <!-- cab / ROPS -->
+        <path d="M -26 -16 L -24 -58 Q -24 -62 -20 -62 L 20 -62 Q 24 -62 24 -58 L 26 -16 Z"
+              fill="#2b2a2a" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M -18 -54 L 18 -54 L 19 -26 L -19 -26 Z" fill="#45525e" opacity=".75"/>
+        <!-- rear fenders -->
+        <path d="M -62 -2 Q -62 -22 -44 -22 Q -28 -22 -26 -10 L -26 -2 Z" fill="currentColor" fill-opacity=".85"/>
+        <path d="M 62 -2 Q 62 -22 44 -22 Q 28 -22 26 -10 L 26 -2 Z" fill="currentColor" fill-opacity=".85"/>
+        <!-- body / axle housing -->
+        <rect x="-26" y="-16" width="52" height="30" rx="4" fill="#3a3838" stroke="currentColor" stroke-width="2.5"/>
+        <rect x="-36" y="8" width="72" height="9" rx="3" fill="#3a3838" stroke="currentColor" stroke-width="2"/>
+        <!-- rear tires with tread -->
+        <g fill="#1d1c1c" stroke="currentColor" stroke-width="2.5">
+          <rect x="-62" y="-6" width="26" height="46" rx="7"/>
+          <rect x="36" y="-6" width="26" height="46" rx="7"/>
+        </g>
+        <g stroke="currentColor" stroke-width="1.5" opacity=".55">
+          <path d="M -60 2 L -38 6 M -60 12 L -38 16 M -60 22 L -38 26 M -60 32 L -38 36"/>
+          <path d="M 60 2 L 38 6 M 60 12 L 38 16 M 60 22 L 38 26 M 60 32 L 38 36"/>
+        </g>
+        <!-- 3-point hitch + PTO -->
+        <path d="M -16 14 L -22 30 M 16 14 L 22 30 M -24 30 L -18 30 M 18 30 L 24 30 M 0 -6 L 0 26"
+              stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <circle cx="0" cy="18" r="4" fill="#1d1c1c" stroke="currentColor" stroke-width="2"/>
+      </g>
+      <circle cx="0" cy="10" r="2.5" fill="#f4f5f6"/>
+      <text class="num" id="bankNum" x="0" y="96" text-anchor="middle" font-size="38" style="fill:var(--chrome)">--°</text>
+      <text class="sub" id="bankDir" x="0" y="114" text-anchor="middle"></text>
+    </svg>
   </div>
-  <svg id="gauge" viewBox="-46 -110 160 220" aria-hidden="true">
-    <path d="M 0 -100 A 100 100 0 0 1 0 100" fill="none" stroke="#2a3038" stroke-width="2"/>
-    <g id="ticks"></g>
-    <line x1="-10" y1="0" x2="106" y2="0" stroke="#2a3038" stroke-width="1" stroke-dasharray="4 4"/>
-    <!-- loader arm (fixed) -->
-    <path d="M -46 -46 L -6 -6" stroke="#55504f" stroke-width="12" stroke-linecap="round"/>
-    <!-- bucket (rotates with the angle; floor/cutting edge = 0° line) -->
-    <g id="needle" style="color:var(--chrome)">
-      <line x1="0" y1="0" x2="96" y2="0" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
-      <!-- side plate -->
-      <path d="M 80 0 L 36 0 C 16 0 6 -12 6 -32 L 6 -56 L 18 -62 L 52 -58 Z" fill="currentColor" fill-opacity=".22"
-            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-      <!-- inside of bucket (curved floor/back) -->
-      <path d="M 74 -3 L 38 -4 C 22 -4 14 -14 14 -30 L 14 -54" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
-      <!-- cutting edge -->
-      <line x1="36" y1="0" x2="84" y2="0" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-      <!-- mounting brackets + pins on the back -->
-      <path d="M 6 -6 L -2 -2 L 0 0 M 6 -44 L -4 -42" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="-4" cy="-42" r="4" fill="#0b0d10" stroke="currentColor" stroke-width="2.5"/>
-      <circle cx="96" cy="0" r="4" fill="currentColor"/>
-    </g>
-    <circle cx="0" cy="0" r="6" fill="#f2f4f7"/>
-  </svg>
+
+  <!-- ===== Implement angle scale (side view) ===== -->
+  <div class="gauge stale" id="gImpl">
+    <svg viewBox="-124 -118 248 236" aria-label="Implement angle">
+      <text class="cap" x="-120" y="-104">IMPLEMENT</text>
+      <path d="M 0 -100 A 100 100 0 0 1 0 100" fill="none" stroke="#3a3636" stroke-width="2"/>
+      <g id="implScale"></g>
+      <g id="implAlarmZones"></g>
+      <line x1="-10" y1="0" x2="106" y2="0" stroke="#3a3636" stroke-width="1" stroke-dasharray="4 4"/>
+      <!-- loader arm (fixed) -->
+      <path d="M -46 -46 L -6 -6" stroke="#55504f" stroke-width="12" stroke-linecap="round"/>
+      <!-- bucket (rotates; floor/cutting edge = 0° line) -->
+      <g id="bucket" style="color:var(--chrome)">
+        <line x1="0" y1="0" x2="96" y2="0" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
+        <path d="M 80 0 L 36 0 C 16 0 6 -12 6 -32 L 6 -56 L 18 -62 L 52 -58 Z" fill="currentColor" fill-opacity=".22"
+              stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M 74 -3 L 38 -4 C 22 -4 14 -14 14 -30 L 14 -54" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
+        <line x1="36" y1="0" x2="84" y2="0" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 6 -6 L -2 -2 L 0 0 M 6 -44 L -4 -42" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="-4" cy="-42" r="4" fill="#0d0c0c" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="96" cy="0" r="4" fill="currentColor"/>
+      </g>
+      <circle cx="0" cy="0" r="6" fill="#f4f5f6"/>
+      <text class="num" id="implNum" x="-62" y="58" text-anchor="middle" font-size="50" style="fill:var(--chrome)">--°</text>
+      <text class="sub" id="implDir" x="-62" y="78" text-anchor="middle"></text>
+    </svg>
+  </div>
+
+  <div id="msg"></div>
 </main>
 
 <footer>
@@ -166,31 +216,54 @@
 <div id="sheet">
   <div class="card">
     <h2>Settings</h2>
+
+    <h3>Implement</h3>
     <div class="row">
-      <div><label>Axis</label><small>Pick the one that moves with the bucket</small></div>
-      <div class="seg" id="segAxis">
-        <button data-v="roll">Roll (X)</button><button data-v="pitch">Pitch (Y)</button>
-      </div>
+      <div><label>Implement axis</label><small>The sensor axis the bucket pivots on. The other axis becomes tractor bank.</small></div>
+      <div class="seg" id="segAxis"><button data-v="roll">Roll (X)</button><button data-v="pitch">Pitch (Y)</button></div>
     </div>
     <div class="row">
-      <div><label>Reverse direction</label><small>Flip + / − (sensor mounted backwards)</small></div>
+      <div><label>Reverse implement direction</label><small>Flip up / down</small></div>
       <input type="checkbox" id="invert">
     </div>
     <div class="row">
-      <div><label>Zero offset</label><small>Set with the Zero button; clear to show true angle</small></div>
-      <button id="btnClearZero">Clear (<span id="zeroVal">0.0</span>°)</button>
+      <div><label>Upper alarm (°)</label><small>Alarm when tilted up past this. Blank = off.</small></div>
+      <input type="number" id="upper" inputmode="decimal" min="0" max="90" step="1" placeholder="Off">
     </div>
     <div class="row">
-      <div><label>Level band ±°</label><small>Number turns green inside this band</small></div>
-      <input type="number" id="tol" min="0" max="45" step="0.5">
+      <div><label>Lower alarm (°)</label><small>Alarm when tilted down past this. Enter as a positive number. Blank = off.</small></div>
+      <input type="number" id="lower" inputmode="decimal" min="0" max="90" step="1" placeholder="Off">
+    </div>
+
+    <h3>Tractor bank</h3>
+    <div class="row">
+      <div><label>Reverse bank direction</label><small>Flip left / right</small></div>
+      <input type="checkbox" id="invertBank">
     </div>
     <div class="row">
-      <div><label>Alarm beyond ±°</label><small>Number turns red past this angle (0 = off)</small></div>
-      <input type="number" id="alarm" min="0" max="180" step="1">
+      <div><label>Bank alarm (± °)</label><small>Alarm when leaning past this either way. Blank = off.</small></div>
+      <input type="number" id="bankAlarm" inputmode="decimal" min="0" max="45" step="1" placeholder="Off">
+    </div>
+    <div class="row">
+      <div><label>Bank sound alarm</label><small>Beeps past the bank limit, faster beyond +5°. Tap the tractor gauge to silence for 30 s.</small></div>
+      <div style="display:flex;gap:10px;align-items:center;flex:none">
+        <button id="btnTestBeep" style="padding:8px 12px;font-size:14px">Test</button>
+        <input type="checkbox" id="sound">
+      </div>
+    </div>
+
+    <h3>Display &amp; sensor</h3>
+    <div class="row">
+      <div><label>Zero offsets</label><small>Set with Zero on level ground, bucket flat</small></div>
+      <button id="btnClearZero">Clear (<span id="zeroVal">0 / 0</span>)</button>
+    </div>
+    <div class="row">
+      <div><label>Level band ±°</label><small>Readouts turn green inside this band</small></div>
+      <input type="number" id="tol" inputmode="decimal" min="0" max="45" step="0.5">
     </div>
     <div class="row">
       <div><label>Smoothing</label><small>Steadies the reading on a running tractor</small></div>
-      <div class="seg" id="segSmooth" style="flex:none">
+      <div class="seg" id="segSmooth">
         <button data-v="0">Off</button><button data-v="1">Low</button><button data-v="2">Med</button><button data-v="3">High</button>
       </div>
     </div>
@@ -216,11 +289,11 @@
   <div class="product">TILT TRAC<sup>™</sup></div>
   <h2 id="splashTitle">Important Safety Notice</h2>
   <div class="legal">
-    <p><b>Tilt Trac is an operator aid that shows an approximate implement angle. It is not a safety device.</b>
-      Do not rely on it to prevent tip-over, rollover, loss of load, or any other hazard.</p>
+    <p><b>Tilt Trac is an operator aid that shows approximate implement and tractor angles. It is not a safety device.</b>
+      Do not rely on it, or on its alarms, to prevent tip-over, rollover, loss of load, or any other hazard.</p>
     <ul>
       <li>Displayed angles may be inaccurate or delayed because of sensor mounting, calibration, vibration,
-        magnetic interference, Bluetooth signal loss, or phone or browser problems.</li>
+        magnetic interference, Bluetooth signal loss, or phone or browser problems. Alarms may fail to appear.</li>
       <li>Always follow the operator's manuals and safety instructions for your tractor, loader and implements,
         and use your own judgment.</li>
       <li>Do not look at or handle your phone while the tractor is moving. Mount the phone securely where it does
@@ -233,7 +306,7 @@
       or other loss arising from the use of Tilt Trac. By tapping "I Understand," you accept these terms and assume
       all risk of use.</p>
     <p class="fine">Tilt Trac is not affiliated with or endorsed by WitMotion. WitMotion is a trademark of its
-      respective owner.<br>Tilt Trac v1.0 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
+      respective owner.<br>Tilt Trac v1.2 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
   </div>
   <button class="primary" id="btnAccept">I Understand — Continue</button>
 </div>
@@ -244,25 +317,27 @@
   const SVC    = '0000ffe5-0000-1000-8000-00805f9a34fb';
   const NOTIFY = '0000ffe4-0000-1000-8000-00805f9a34fb';
   const WRITE  = '0000ffe9-0000-1000-8000-00805f9a34fb';
-
+  const NS = 'http://www.w3.org/2000/svg';
+  const D2R = Math.PI / 180, R2D = 180 / Math.PI;
   const $ = id => document.getElementById(id);
-  const el = { dot:$('dot'), status:$('status'), label:$('label'), angle:$('angle'), dir:$('dir'),
-    needle:$('needle'), gauge:$('gauge'), msg:$('msg'), sheet:$('sheet'), raw:$('raw'), zeroVal:$('zeroVal'),
-    btnConnect:$('btnConnect'), btnDemo:$('btnDemo') };
 
   // ---- settings (per-device convenience; page works without storage) ----
-  const DEFAULTS = { axis:'pitch', invert:false, zero:0, tol:1, alarm:0, dec:1, smooth:2, rate:6, showAll:false };
+  const DEFAULTS = { axis:'pitch', invert:false, invertBank:false, zero:0, zeroBank:0, tol:1,
+                     upper:null, lower:null, bankAlarm:null, sound:true, smooth:2, rate:6, showAll:false };
   let S = { ...DEFAULTS };
-  try { Object.assign(S, JSON.parse(localStorage.getItem('witTilt') || '{}')); } catch (e) {}
-  S.dec = 0;                                   // whole degrees only
+  try {
+    const saved = JSON.parse(localStorage.getItem('witTilt') || '{}');
+    Object.assign(S, saved);
+    if (saved.alarm > 0 && saved.upper === undefined) { S.upper = saved.alarm; S.lower = -saved.alarm; }  // migrate v1.0
+    delete S.alarm; delete S.dec;
+  } catch (e) {}
   const save = () => { try { localStorage.setItem('witTilt', JSON.stringify(S)); } catch (e) {} };
 
   // ---- state ----
   let device = null, writeChar = null, wantConnected = false, demoTimer = null;
   let rx = new Uint8Array(0);
   let last = { roll:null, pitch:null, yaw:null };
-  let smoothed = null, lastPacketAt = 0;
-
+  let sImpl = null, sBank = null, lastPacketAt = 0;
   const wrap = a => { a = ((a + 180) % 360 + 360) % 360 - 180; return a === -180 ? 180 : a; };
 
   // ---- packet parsing: 20 bytes, 0x55 0x61, then 9 int16 LE ----
@@ -281,45 +356,180 @@
     }
   }
 
+  // Split the sensor's orientation into implement angle and tractor bank.
+  // Rebuild the gravity direction in the sensor frame from roll/pitch, then:
+  //   bank      = rotation about the tractor's fore-aft axis (exact even when the bucket is curled)
+  //   implement = rotation about the bucket pivot axis
+  function decompose(roll, pitch) {
+    const r = roll * D2R, p = pitch * D2R;
+    const gx = -Math.sin(p), gy = Math.cos(p) * Math.sin(r), gz = Math.cos(p) * Math.cos(r);
+    if (S.axis === 'pitch') {
+      return { impl: Math.atan2(-gx, gz) * R2D, bank: Math.asin(Math.max(-1, Math.min(1, gy))) * R2D };
+    }
+    return { impl: Math.atan2(gy, gz) * R2D, bank: Math.asin(Math.max(-1, Math.min(1, -gx))) * R2D };
+  }
+
   function onAngles(roll, pitch, yaw) {
     last = { roll, pitch, yaw }; lastPacketAt = performance.now();
-    let a = S.axis === 'roll' ? roll : pitch;
+    const { impl, bank } = decompose(roll, pitch);
     const alpha = [1, 0.5, 0.25, 0.1][S.smooth] ?? 0.25;
-    smoothed = smoothed === null ? a : wrap(smoothed + alpha * wrap(a - smoothed));
+    sImpl = sImpl === null ? impl : wrap(sImpl + alpha * wrap(impl - sImpl));
+    sBank = sBank === null ? bank : sBank + alpha * (bank - sBank);
     render();
   }
 
-  function displayAngle() {
-    if (smoothed === null) return null;
-    let a = wrap(smoothed - S.zero);
-    return S.invert ? -a : a;
+  const implAngle = () => sImpl === null ? null : (S.invert ? -1 : 1) * wrap(sImpl - S.zero);
+  const bankAngle = () => sBank === null ? null : (S.invertBank ? -1 : 1) * (sBank - S.zeroBank);
+
+  // ---- scales and alarm zones ----
+  const P = (cx, cy, r, deg) => [cx + r * Math.cos(deg * D2R), cy - r * Math.sin(deg * D2R)];   // deg CCW from +x
+  function arc(cx, cy, r, a1, a2) {                       // math angles, a1 -> a2
+    const [x1, y1] = P(cx, cy, r, a1), [x2, y2] = P(cx, cy, r, a2);
+    const large = Math.abs(a2 - a1) > 180 ? 1 : 0, sweep = a2 > a1 ? 0 : 1;
+    return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${large} ${sweep} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+  }
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    parent.appendChild(e); return e;
   }
 
+  // implement: right-half dial, 0° = horizontal right, + up
+  (function buildImplScale() {
+    const g = $('implScale');
+    for (let a = -90; a <= 90; a += 15) {
+      const major = a % 45 === 0, len = major ? 12 : 6;
+      const [x1, y1] = P(0, 0, 100, a), [x2, y2] = P(0, 0, 100 - len, a);
+      el('line', { x1, y1, x2, y2, stroke: '#5a5555', 'stroke-width': major ? 2 : 1 }, g);
+      if (major) {
+        const [tx, ty] = P(0, 0, 110, a);
+        el('text', { x: tx, y: ty + 3, 'text-anchor': a === 90 || a === -90 ? 'middle' : 'start', class: 'tl' }, g)
+          .textContent = (a > 0 ? '+' : '') + a + '°';
+      }
+    }
+  })();
+
+  // bank: top arc centered on (0,10), ±45°, + = right side down (clockwise)
+  const BCX = 0, BCY = 10, BR = 96, BMAX = 45;
+  (function buildBankScale() {
+    const g = $('bankScale');
+    el('path', { d: arc(BCX, BCY, BR, 90 + BMAX, 90 - BMAX), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
+    for (let b = -BMAX; b <= BMAX; b += 5) {
+      const major = b % 10 === 0 || Math.abs(b) === 45, len = major ? 11 : 5;
+      const [x1, y1] = P(BCX, BCY, BR, 90 - b), [x2, y2] = P(BCX, BCY, BR + len, 90 - b);
+      el('line', { x1, y1, x2, y2, stroke: '#5a5555', 'stroke-width': major ? 2 : 1 }, g);
+      if (major && b !== 0 && Math.abs(b) !== 40) {
+        const [tx, ty] = P(BCX, BCY, BR + 19, 90 - b);
+        el('text', { x: tx, y: ty + 3, 'text-anchor': 'middle', class: 'tl' }, g).textContent = Math.abs(b);
+      }
+    }
+  })();
+
+  function drawAlarmZones() {
+    const zi = $('implAlarmZones'); zi.innerHTML = '';
+    const zone = (g, d) => el('path', { d, fill: 'none', stroke: '#ff3b30', 'stroke-width': 7, opacity: .7 }, g);
+    const mark = (g, x1, y1, x2, y2) => el('line', { x1, y1, x2, y2, stroke: '#ff3b30', 'stroke-width': 2.5 }, g);
+    if (S.upper !== null && S.upper < 90) {
+      zone(zi, arc(0, 0, 100, S.upper, 90));
+      const [a, b] = P(0, 0, 86, S.upper), [c, d] = P(0, 0, 106, S.upper); mark(zi, a, b, c, d);
+    }
+    if (S.lower !== null && S.lower > -90) {
+      zone(zi, arc(0, 0, 100, S.lower, -90));
+      const [a, b] = P(0, 0, 86, S.lower), [c, d] = P(0, 0, 106, S.lower); mark(zi, a, b, c, d);
+    }
+    const zb = $('bankAlarmZones'); zb.innerHTML = '';
+    if (S.bankAlarm && S.bankAlarm < BMAX) {
+      for (const s of [1, -1]) {
+        const lim = s * S.bankAlarm;
+        zone(zb, arc(BCX, BCY, BR + 4, 90 - lim, 90 - s * BMAX));
+        const [a, b] = P(BCX, BCY, BR - 6, 90 - lim), [c, d] = P(BCX, BCY, BR + 14, 90 - lim); mark(zb, a, b, c, d);
+      }
+    }
+  }
+
+  // ---- sound alarm (tractor bank only) ----
+  let audioCtx = null, bankAlarmOn = false, bankExcess = 0, muteUntil = 0, lastBeep = 0;
+  function unlockAudio() {                    // iPhone only allows audio after a tap
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = 'playback';   // play even with the ringer switch on silent (where supported)
+      if (!audioCtx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioCtx = new AC(); }
+      if (audioCtx.state !== 'running') audioCtx.resume();
+      const buf = audioCtx.createBuffer(1, 1, 22050), src = audioCtx.createBufferSource();
+      src.buffer = buf; src.connect(audioCtx.destination); src.start(0);
+    } catch (e) {}
+  }
+  function beep() {
+    if (!audioCtx) return;
+    try {
+      if (audioCtx.state !== 'running') audioCtx.resume();
+      const t = audioCtx.currentTime, o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'square'; o.frequency.value = 2000;          // high pitch cuts through engine noise
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.6, t + 0.01);
+      g.gain.setValueAtTime(0.6, t + 0.12);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t); o.stop(t + 0.17);
+    } catch (e) {}
+  }
+  setInterval(() => {
+    const now = performance.now();
+    const fresh = lastPacketAt && now - lastPacketAt < 1500;
+    if (!S.sound || !bankAlarmOn || !fresh || now < muteUntil) return;
+    const gap = bankExcess > 5 ? 250 : 550;
+    if (now - lastBeep >= gap) { lastBeep = now; beep(); }
+  }, 50);
+
+  // ---- render ----
+  const fmt = a => { const n = Math.round(a); return (n > 0 ? '+' : '') + (Object.is(n, -0) ? 0 : n) + '°'; };
   function render() {
-    const a = displayAngle();
-    el.label.textContent = S.axis === 'roll' ? 'Roll · X axis' : 'Pitch · Y axis';
-    if (a === null) { el.angle.innerHTML = '--<span class="deg">°</span>'; return; }
-    const shown = Number(a.toFixed(S.dec));
-    const txt = (Object.is(shown, -0) ? 0 : shown).toFixed(S.dec);
-    el.angle.innerHTML = (shown > 0 ? '+' : '') + txt + '<span class="deg">°</span>';
-    const abs = Math.abs(a);
-    el.angle.classList.toggle('ok', abs <= S.tol);
-    el.angle.classList.toggle('bad', S.alarm > 0 && abs > S.alarm);
-    el.dir.textContent = abs <= S.tol ? 'Level' : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
-    const col = el.angle.classList.contains('bad') ? 'var(--bad)' : el.angle.classList.contains('ok') ? 'var(--ok)' : 'var(--chrome)';
-    el.needle.style.color = col;
-    el.needle.setAttribute('transform', `rotate(${-Math.max(-90, Math.min(90, a))})`);
-    el.raw.textContent = `Roll ${last.roll?.toFixed(1) ?? '—'}°   Pitch ${last.pitch?.toFixed(1) ?? '—'}°   Yaw ${last.yaw?.toFixed(1) ?? '—'}°`;
+    const a = implAngle(), b = bankAngle();
+    // implement
+    const implAlarm = a !== null && ((S.upper !== null && a > S.upper) || (S.lower !== null && a < S.lower));
+    const implOk = a !== null && Math.abs(a) <= S.tol;
+    const ci = implAlarm ? 'var(--bad)' : implOk ? 'var(--ok)' : 'var(--chrome)';
+    $('gImpl').classList.toggle('alarm', implAlarm);
+    $('bucket').style.color = ci;
+    if (a === null) { $('implNum').textContent = '--°'; $('implDir').textContent = ''; }
+    else {
+      const t = fmt(a);
+      $('implNum').textContent = t;
+      $('implNum').setAttribute('font-size', t.length > 4 ? 40 : 50);
+      $('implNum').style.fill = ci;
+      $('implDir').textContent = implAlarm ? (a > 0 ? 'ABOVE UPPER LIMIT' : 'BELOW LOWER LIMIT')
+                                : implOk ? 'Level' : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
+      $('implDir').style.fill = implAlarm ? 'var(--bad)' : 'var(--muted)';
+      $('bucket').setAttribute('transform', `rotate(${-Math.max(-95, Math.min(95, a))})`);
+    }
+    // bank
+    const bankAlarm = b !== null && S.bankAlarm > 0 && Math.abs(b) > S.bankAlarm;
+    bankAlarmOn = bankAlarm; bankExcess = bankAlarm ? Math.abs(b) - S.bankAlarm : 0;
+    const bankOk = b !== null && Math.abs(b) <= S.tol;
+    const cb = bankAlarm ? 'var(--bad)' : bankOk ? 'var(--ok)' : 'var(--chrome)';
+    $('gBank').classList.toggle('alarm', bankAlarm);
+    $('tractor').style.color = cb;
+    if (b === null) { $('bankNum').textContent = '--°'; $('bankDir').textContent = ''; }
+    else {
+      const n = Math.abs(Math.round(b));
+      $('bankNum').textContent = n + '°';
+      $('bankNum').style.fill = cb;
+      $('bankDir').textContent = bankAlarm ? 'BANK LIMIT EXCEEDED' + (b > 0 ? ' — RIGHT' : ' — LEFT') + (performance.now() < muteUntil ? ' (silenced)' : '')
+                                : n === 0 || bankOk ? 'Level' : (b > 0 ? 'Leaning right ▶' : '◀ Leaning left');
+      $('bankDir').style.fill = bankAlarm ? 'var(--bad)' : 'var(--muted)';
+      $('tractor').setAttribute('transform', `rotate(${Math.max(-BMAX - 3, Math.min(BMAX + 3, b))} ${BCX} ${BCY})`);
+    }
+    $('raw').textContent = `Roll ${last.roll?.toFixed(1) ?? '—'}°   Pitch ${last.pitch?.toFixed(1) ?? '—'}°   Yaw ${last.yaw?.toFixed(1) ?? '—'}°`;
   }
 
   // stale-data indicator
   setInterval(() => {
-    el.angle.classList.toggle('stale', !lastPacketAt || performance.now() - lastPacketAt > 1500);
+    const stale = !lastPacketAt || performance.now() - lastPacketAt > 1500;
+    $('gImpl').classList.toggle('stale', stale); $('gBank').classList.toggle('stale', stale);
   }, 500);
 
   function setStatus(text, state) {
-    el.status.textContent = text; $('status2').textContent = text;
-    el.dot.className = $('dot2').className = 'dot' + (state ? ' ' + state : '');
+    $('status').textContent = text; $('status2').textContent = text;
+    $('dot').className = $('dot2').className = 'dot' + (state ? ' ' + state : '');
     document.body.classList.toggle('connected', state === 'on' && wantConnected);
   }
 
@@ -353,7 +563,7 @@
     });
     await notify.startNotifications();
     setStatus(device.name || 'Sensor connected', 'on');
-    el.btnConnect.textContent = 'Disconnect';
+    $('btnConnect').textContent = 'Disconnect';
     sendRate();
     keepAwake();
   }
@@ -374,7 +584,7 @@
 
   async function onDisconnected() {
     lastPacketAt = 0;
-    el.btnConnect.textContent = 'Connect';
+    $('btnConnect').textContent = 'Connect';
     if (!wantConnected) { setStatus('Disconnected', ''); return; }
     for (let attempt = 1; attempt <= 10 && wantConnected; attempt++) {
       setStatus(`Signal lost — reconnecting (${attempt})…`, 'wait');
@@ -386,20 +596,22 @@
   function disconnect() {
     wantConnected = false;
     if (device && device.gatt.connected) device.gatt.disconnect();
-    setStatus('Disconnected', ''); el.btnConnect.textContent = 'Connect';
+    setStatus('Disconnected', ''); $('btnConnect').textContent = 'Connect';
   }
 
   function showNoBluetooth() {
-    el.msg.innerHTML = 'This browser can\'t talk to Bluetooth sensors.<br>On iPhone, install the free <b>Bluefy</b> browser app, then open this page in it.'
-      + '<div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">'
+    const m = $('msg');
+    m.innerHTML = 'This browser can\'t talk to Bluetooth sensors.<br>On iPhone, install the free <b>Bluefy</b> browser app, then open this page in it.'
+      + '<div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">'
       + '<a href="https://apps.apple.com/app/id1492822055" style="text-decoration:none"><button>Get Bluefy</button></a>'
-      + '<button id="btnCopy">Copy page link</button></div>'
-      + '<div style="margin-top:8px">You can still try <b>Demo mode</b> in Settings.</div>';
+      + '<button id="btnCopy">Copy page link</button><button id="btnMsgClose">Close</button></div>'
+      + '<div style="margin-top:6px">You can still try <b>Demo mode</b> in Settings.</div>';
+    m.classList.add('show');
     $('btnCopy').onclick = async () => {
       try { await navigator.clipboard.writeText(location.href); $('btnCopy').textContent = 'Link copied'; }
       catch (e) { prompt('Copy this link:', location.href); }
     };
-    el.msg.classList.add('show');
+    $('btnMsgClose').onclick = () => m.classList.remove('show');
     setStatus('Bluetooth not available here', '');
   }
 
@@ -419,80 +631,88 @@
     const t0 = performance.now();
     demoTimer = setInterval(() => {
       const t = (performance.now() - t0) / 1000;
-      const pitch = 35 * Math.sin(t * 0.5) + (Math.random() - .5) * 1.5;
-      const roll  = 8 * Math.sin(t * 0.23) + (Math.random() - .5) * 1.5;
+      const impl = 40 * Math.sin(t * 0.45) + (Math.random() - .5) * 1.5;
+      const bank = 14 * Math.sin(t * 0.21) + (Math.random() - .5) * 1.0;
+      // build sensor Euler angles for a bucket on the selected axis, tractor banked about the other
       const p = new Uint8Array(20), dv = new DataView(p.buffer);
       p[0] = 0x55; p[1] = 0x61;
+      let roll, pitch;
+      if (S.axis === 'pitch') {           // g = (-sinθ cosφ, sinφ, cosθ cosφ)
+        const th = impl * D2R, ph = bank * D2R;
+        const gx = -Math.sin(th) * Math.cos(ph), gy = Math.sin(ph), gz = Math.cos(th) * Math.cos(ph);
+        pitch = Math.asin(-gx) * R2D; roll = Math.atan2(gy, gz) * R2D;
+      } else { roll = impl; pitch = bank; }
       const enc = d => Math.round(d / 180 * 32768);
       dv.setInt16(14, enc(roll), true); dv.setInt16(16, enc(pitch), true); dv.setInt16(18, enc(12), true);
       feed(p.slice(0, 7)); feed(p.slice(7));               // split on purpose to exercise reassembly
     }, 100);
-    el.msg.classList.remove("show"); setStatus("Demo mode", "on"); el.btnDemo.textContent = 'Stop demo'; keepAwake();
+    $('msg').classList.remove('show'); setStatus('Demo mode', 'on'); $('btnDemo').textContent = 'Stop demo'; keepAwake();
   }
   function stopDemo() {
     if (!demoTimer) return;
     clearInterval(demoTimer); demoTimer = null; lastPacketAt = 0;
-    setStatus('Not connected', ''); el.btnDemo.textContent = 'Start demo';
+    setStatus('Not connected', ''); $('btnDemo').textContent = 'Start demo';
   }
-
-  // ---- gauge ticks ----
-  (function ticks() {
-    const g = $('ticks'); let s = '';
-    // ticks along the semicircle: angle θ from 0 (right) to 180 (left)
-    for (let th = -90; th <= 90; th += 15) {
-      const r = th * Math.PI / 180, major = Math.abs(th) % 45 === 0, len = major ? 12 : 6;
-      const x1 = 100 * Math.cos(r), y1 = -100 * Math.sin(r);
-      const x2 = (100 - len) * Math.cos(r), y2 = -(100 - len) * Math.sin(r);
-      s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#4a5462" stroke-width="${major ? 2 : 1}"/>`;
-    }
-    g.innerHTML = s;
-  })();
 
   // ---- UI wiring ----
   let accepted = false;
-  $('btnAccept').onclick = () => { accepted = true; $('splash').classList.add('hide'); };
-  el.btnConnect.onclick = () => { if (!accepted) return; wantConnected ? disconnect() : connect(); };
-  $('btnConnect2').onclick = () => el.btnConnect.onclick();
-  $('btnZero2').onclick = () => $('btnZero').onclick();
-  $('btnZero').onclick = () => {
-    if (smoothed === null) return;
-    S.zero = smoothed; save(); render(); syncSettings();
+  $('btnAccept').onclick = () => { unlockAudio(); accepted = true; $('splash').classList.add('hide'); };
+  $('btnTestBeep').onclick = () => { unlockAudio(); beep(); setTimeout(beep, 300); setTimeout(beep, 600); };
+  $('gBank').onclick = () => {
+    unlockAudio();
+    if (!bankAlarmOn) return;
+    muteUntil = performance.now() < muteUntil ? 0 : performance.now() + 30000;   // tap again to un-silence
+    render();
   };
-  $('btnSettings').onclick = () => { syncSettings(); el.sheet.classList.add('open'); };
-  $('btnClose').onclick = () => el.sheet.classList.remove('open');
-  el.sheet.onclick = e => { if (e.target === el.sheet) el.sheet.classList.remove('open'); };
-  $('btnClearZero').onclick = () => { S.zero = 0; save(); render(); syncSettings(); };
-  el.btnDemo.onclick = () => demoTimer ? stopDemo() : startDemo();
+  const onConnect = () => { if (!accepted) return; unlockAudio(); wantConnected ? disconnect() : connect(); };
+  const onZero = () => {
+    if (sImpl === null) return;
+    S.zero = sImpl; S.zeroBank = sBank; save(); render(); syncSettings();
+  };
+  $('btnConnect').onclick = onConnect; $('btnConnect2').onclick = onConnect;
+  $('btnZero').onclick = onZero; $('btnZero2').onclick = onZero;
+  $('btnSettings').onclick = () => { syncSettings(); $('sheet').classList.add('open'); };
+  $('btnClose').onclick = () => $('sheet').classList.remove('open');
+  $('sheet').onclick = e => { if (e.target === $('sheet')) $('sheet').classList.remove('open'); };
+  $('btnClearZero').onclick = () => { S.zero = 0; S.zeroBank = 0; save(); render(); syncSettings(); };
+  $('btnDemo').onclick = () => { unlockAudio(); demoTimer ? stopDemo() : startDemo(); };
 
   function seg(id, key, parse) {
     $(id).querySelectorAll('button').forEach(b => b.onclick = () => {
-      S[key] = parse(b.dataset.v); save();
-      if (key === 'axis') { smoothed = null; S.zero = 0; }      // new axis → new reference
+      S[key] = parse(b.dataset.v);
+      if (key === 'axis') { sImpl = sBank = null; S.zero = S.zeroBank = 0; }   // new axis -> new reference
       if (key === 'rate') sendRate();
-      syncSettings(); render();
+      save(); syncSettings(); render();
     });
   }
   seg('segAxis', 'axis', v => v);
   seg('segSmooth', 'smooth', Number);
   seg('segRate', 'rate', Number);
+  const num = v => { const n = parseFloat(v); return isFinite(n) && n !== 0 ? Math.abs(n) : null; };
   $('invert').onchange = e => { S.invert = e.target.checked; save(); render(); };
+  $('invertBank').onchange = e => { S.invertBank = e.target.checked; save(); render(); };
   $('showAll').onchange = e => { S.showAll = e.target.checked; save(); };
+  $('sound').onchange = e => { S.sound = e.target.checked; if (S.sound) unlockAudio(); save(); };
   $('tol').onchange = e => { S.tol = Math.max(0, Number(e.target.value) || 0); save(); render(); };
-  $('alarm').onchange = e => { S.alarm = Math.max(0, Number(e.target.value) || 0); save(); render(); };
+  $('upper').onchange = e => { S.upper = num(e.target.value); save(); drawAlarmZones(); render(); };
+  $('lower').onchange = e => { const n = num(e.target.value); S.lower = n === null ? null : -n; save(); drawAlarmZones(); render(); };
+  $('bankAlarm').onchange = e => { S.bankAlarm = num(e.target.value); save(); drawAlarmZones(); render(); };
 
   function syncSettings() {
     const mark = (id, v) => $(id).querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.dataset.v === String(v)));
     mark('segAxis', S.axis); mark('segSmooth', S.smooth); mark('segRate', S.rate);
-    $('invert').checked = S.invert; $('showAll').checked = S.showAll;
-    $('tol').value = S.tol; $('alarm').value = S.alarm;
-    el.zeroVal.textContent = S.zero.toFixed(1);
+    $('invert').checked = S.invert; $('invertBank').checked = S.invertBank; $('showAll').checked = S.showAll; $('sound').checked = S.sound;
+    $('tol').value = S.tol;
+    $('upper').value = S.upper ?? ''; $('lower').value = S.lower === null ? '' : Math.abs(S.lower);
+    $('bankAlarm').value = S.bankAlarm ?? '';
+    $('zeroVal').textContent = `${Math.round(S.zero)}° / ${Math.round(S.zeroBank)}°`;
   }
 
-  syncSettings(); render();
+  syncSettings(); drawAlarmZones(); render();
   if (!navigator.bluetooth) showNoBluetooth();
 
   // test hook
-  window.__wit = { feed, get angle() { return displayAngle(); }, S };
+  window.__wit = { feed, decompose, get impl() { return implAngle(); }, get bank() { return bankAngle(); }, S, render, drawAlarmZones };
 })();
 </script>
 </body>
