@@ -19,10 +19,10 @@
     padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left))}
 
   /* header */
-  header{display:flex;align-items:center;gap:12px;padding:10px 0 4px}
+  header{display:flex;align-items:center;gap:8px;padding:10px 0 4px}
   .logo{height:40px;width:auto;display:block}
   .brand{flex:1;min-width:0}
-  .product{font-weight:800;font-size:22px;letter-spacing:.14em;line-height:1;white-space:nowrap;
+  .product{font-weight:800;font-size:clamp(15px,4.4vw,22px);letter-spacing:.12em;line-height:1;white-space:nowrap;
     background:linear-gradient(180deg,#ffffff 0%,#c3ccd5 45%,#7f8a94 52%,#e6ecf1 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent}
   .product sup{font-size:.4em;letter-spacing:0;vertical-align:1.4em;color:var(--muted);-webkit-text-fill-color:var(--muted)}
@@ -37,6 +37,11 @@
   button:active{transform:scale(.97)}
   button.primary{background:var(--accent);border-color:var(--accent)}
   button.icon{padding:10px 12px}
+  #btnFull.on{background:var(--accent);border-color:var(--accent)}
+  #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 90px);transform:translateX(-50%);z-index:20;
+    width:min(440px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+    font-size:14px;line-height:1.4;color:var(--text);display:none;text-align:center}
+  #toast.show{display:block}
 
   /* gauges */
   main{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:space-evenly;gap:4px;position:relative;padding:4px 0}
@@ -125,6 +130,7 @@
   <div class="hstatus"><span class="dot" id="dot2"></span><span id="status2">Not connected</span></div>
   <button class="primary land" id="btnConnect2">Connect</button>
   <button class="land" id="btnZero2">Zero</button>
+  <button class="icon" id="btnFull" aria-label="Toggle full screen" title="Full screen">⛶</button>
   <button class="icon" id="btnSettings" aria-label="Settings">⚙︎</button>
 </header>
 <div class="statusbar">
@@ -213,6 +219,8 @@
   <button id="btnZero">Zero</button>
 </footer>
 
+<div id="toast"></div>
+
 <div id="sheet">
   <div class="card">
     <h2>Settings</h2>
@@ -280,6 +288,7 @@
       <button id="btnDemo">Start demo</button>
     </div>
     <div id="raw">Roll —  Pitch —  Yaw —</div>
+    <div id="fsInfo" style="font:13px ui-monospace,Menlo,monospace;color:var(--muted);margin-top:4px"></div>
     <div style="margin-top:16px"><button class="primary" id="btnClose" style="width:100%">Done</button></div>
   </div>
 </div>
@@ -306,7 +315,7 @@
       or other loss arising from the use of Tilt Trac. By tapping "I Understand," you accept these terms and assume
       all risk of use.</p>
     <p class="fine">Tilt Trac is not affiliated with or endorsed by WitMotion. WitMotion is a trademark of its
-      respective owner.<br>Tilt Trac v1.2.1 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
+      respective owner.<br>Tilt Trac v1.3 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
   </div>
   <button class="primary" id="btnAccept">I Understand — Continue</button>
 </div>
@@ -653,6 +662,40 @@
     clearInterval(demoTimer); demoTimer = null; lastPacketAt = 0;
     setStatus('Not connected', ''); $('btnDemo').textContent = 'Start demo';
   }
+
+  // ---- full-screen toggle (works only where the browser supports the web Fullscreen API) ----
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+  const fsSupported = () => !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+  function toast(html, ms = 6000) {
+    const t = $('toast'); t.innerHTML = html; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), ms);
+  }
+  function syncFull() {
+    $('btnFull').classList.toggle('on', !!fsEl());
+    $('btnFull').title = fsEl() ? 'Exit full screen' : 'Full screen';
+    $('fsInfo').textContent = 'Full-screen control: ' + (fsSupported() ? 'supported' : 'not supported in this browser');
+  }
+  async function toggleFull() {
+    try {
+      if (fsEl()) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      } else if (fsSupported()) {
+        const de = document.documentElement;
+        if (de.requestFullscreen) await de.requestFullscreen({ navigationUI: 'hide' });
+        else de.webkitRequestFullscreen();
+      } else {
+        toast('This browser doesn\'t let the page switch full screen on or off.<br>If Bluefy\'s own full-screen setting is on, use Bluefy\'s menu to turn it off, or close and reopen Bluefy.');
+      }
+    } catch (e) {
+      toast('Full screen couldn\'t be changed here (' + (e && e.message || e) + ').');
+    }
+    setTimeout(syncFull, 300);
+  }
+  document.addEventListener('fullscreenchange', syncFull);
+  document.addEventListener('webkitfullscreenchange', syncFull);
+  $('btnFull').onclick = toggleFull;
+  syncFull();
 
   // ---- UI wiring ----
   let accepted = false;
