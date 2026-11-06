@@ -200,12 +200,17 @@
   <div class="gauge stale" id="gImpl">
     <svg viewBox="-124 -118 248 236" aria-label="Implement angle">
       <text class="cap" x="-120" y="-104">IMPLEMENT</text>
-      <path d="M 0 -100 A 100 100 0 0 1 0 100" fill="none" stroke="#3a3636" stroke-width="2"/>
       <g id="implScale"></g>
       <g id="implAlarmZones"></g>
       <line x1="-10" y1="0" x2="106" y2="0" stroke="#3a3636" stroke-width="1" stroke-dasharray="4 4"/>
-      <!-- loader arm (fixed) -->
-      <path d="M -46 -46 L -6 -6" stroke="#55504f" stroke-width="12" stroke-linecap="round"/>
+      <!-- loader arm (fixed, bucket mode) -->
+      <path id="loaderArm" d="M -46 -46 L -6 -6" stroke="#55504f" stroke-width="12" stroke-linecap="round"/>
+      <!-- tractor rear wheel + drawbar (fixed, pulled mode) -->
+      <g id="tractorStub" style="display:none">
+        <circle cx="-62" cy="-18" r="26" fill="#1d1c1c" stroke="#55504f" stroke-width="5"/>
+        <circle cx="-62" cy="-18" r="8" fill="#55504f"/>
+        <path d="M -40 0 L -6 0" stroke="#55504f" stroke-width="8" stroke-linecap="round"/>
+      </g>
       <!-- bucket (rotates; floor/cutting edge = 0° line) -->
       <g id="bucket" style="color:var(--chrome)">
         <line x1="0" y1="0" x2="96" y2="0" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
@@ -216,6 +221,18 @@
         <path d="M 6 -6 L -2 -2 L 0 0 M 6 -44 L -4 -42" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
         <circle cx="-4" cy="-42" r="4" fill="#0d0c0c" stroke="currentColor" stroke-width="2.5"/>
         <circle cx="96" cy="0" r="4" fill="currentColor"/>
+      </g>
+      <!-- pulled implement, e.g. disk harrow (rotates about the hitch; frame = 0° line) -->
+      <g id="pulled" style="color:var(--chrome);display:none">
+        <line x1="0" y1="0" x2="100" y2="0" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
+        <path d="M 2 -2 L 26 -24" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <rect x="22" y="-30" width="74" height="9" rx="2" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="3"/>
+        <path d="M 34 -21 L 34 -12 M 52 -21 L 52 -12 M 70 -21 L 70 -12 M 88 -21 L 88 -12" stroke="currentColor" stroke-width="3"/>
+        <g fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="3">
+          <circle cx="34" cy="-3" r="10"/><circle cx="52" cy="-3" r="10"/><circle cx="70" cy="-3" r="10"/><circle cx="88" cy="-3" r="10"/>
+        </g>
+        <g fill="currentColor"><circle cx="34" cy="-3" r="2.5"/><circle cx="52" cy="-3" r="2.5"/><circle cx="70" cy="-3" r="2.5"/><circle cx="88" cy="-3" r="2.5"/></g>
+        <circle cx="100" cy="0" r="4" fill="currentColor"/>
       </g>
       <circle cx="0" cy="0" r="6" fill="#f4f5f6"/>
       <text class="num" id="implNum" x="-62" y="58" text-anchor="middle" font-size="50" style="fill:var(--chrome)">--°</text>
@@ -237,6 +254,14 @@
 
     <h3>Implement</h3>
     <div class="row">
+      <div><label>Implement type</label><small>Pulled = plow, disk or other towed implement, shown on a magnified ±7° scale</small></div>
+      <div class="seg" id="segImpl"><button data-v="bucket">Bucket</button><button data-v="pulled">Pulled</button></div>
+    </div>
+    <div class="row">
+      <div><label>Implement readout</label><small>Tenths apply to the implement angle only</small></div>
+      <div class="seg" id="segImplDec"><button data-v="0">Whole °</button><button data-v="1">Tenths</button></div>
+    </div>
+    <div class="row">
       <div><label>Implement axis</label><small>The sensor axis the bucket pivots on. The other axis becomes tractor bank.</small></div>
       <div class="seg" id="segAxis"><button data-v="roll">Roll (X)</button><button data-v="pitch">Pitch (Y)</button></div>
     </div>
@@ -245,12 +270,12 @@
       <input type="checkbox" id="invert">
     </div>
     <div class="row">
-      <div><label>Upper alarm (°)</label><small>Alarm when tilted up past this. Blank = off.</small></div>
-      <input type="number" id="upper" inputmode="decimal" min="0" max="90" step="1" placeholder="Off">
+      <div><label>Upper alarm (°)</label><small>Alarm when tilted up past this. Blank = off. Saved separately for <span class="limMode">bucket</span>.</small></div>
+      <input type="number" id="upper" inputmode="decimal" min="0" max="90" step="0.1" placeholder="Off">
     </div>
     <div class="row">
-      <div><label>Lower alarm (°)</label><small>Alarm when tilted down past this. Enter as a positive number. Blank = off.</small></div>
-      <input type="number" id="lower" inputmode="decimal" min="0" max="90" step="1" placeholder="Off">
+      <div><label>Lower alarm (°)</label><small>Alarm when tilted down past this. Enter as a positive number. Blank = off. Saved separately for <span class="limMode">bucket</span>.</small></div>
+      <input type="number" id="lower" inputmode="decimal" min="0" max="90" step="0.1" placeholder="Off">
     </div>
 
     <h3>Tractor bank</h3>
@@ -277,7 +302,7 @@
     </div>
     <div class="row">
       <div><label>Level band ±°</label><small>Readouts turn green inside this band</small></div>
-      <input type="number" id="tol" inputmode="decimal" min="0" max="45" step="0.5">
+      <input type="number" id="tol" inputmode="decimal" min="0" max="45" step="0.1">
     </div>
     <div class="row">
       <div><label>Smoothing</label><small>Steadies the reading on a running tractor</small></div>
@@ -334,7 +359,7 @@
       or other loss arising from the use of Tilt Trac. By tapping "I Understand," you accept these terms and assume
       all risk of use.</p>
     <p class="fine">Tilt Trac is not affiliated with or endorsed by WitMotion. WitMotion is a trademark of its
-      respective owner.<br>Tilt Trac v1.4 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
+      respective owner.<br>Tilt Trac v1.5 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
   </div>
   <button class="primary" id="btnAccept">I Understand — Continue</button>
 </div>
@@ -405,7 +430,7 @@
 
   // ---- settings (per-device convenience; page works without storage) ----
   const DEFAULTS = { axis:'pitch', invert:false, invertBank:false, zero:0, zeroBank:0, tol:1,
-                     upper:null, lower:null, bankAlarm:null, sound:true, smooth:2, rate:6, showAll:false };
+                     upper:null, lower:null, upperP:null, lowerP:null, implType:'bucket', implDec:0, bankAlarm:null, sound:true, smooth:2, rate:6, showAll:false };
   let S = { ...DEFAULTS };
   try {
     const saved = JSON.parse(localStorage.getItem('witTilt') || '{}');
@@ -476,20 +501,34 @@
     parent.appendChild(e); return e;
   }
 
-  // implement: right-half dial, 0° = horizontal right, + up
-  (function buildImplScale() {
-    const g = $('implScale');
-    for (let a = -90; a <= 90; a += 15) {
-      const major = a % 45 === 0, len = major ? 12 : 6;
-      const [x1, y1] = P(0, 0, 100, a), [x2, y2] = P(0, 0, 100 - len, a);
+  // implement: right-half dial, 0° = horizontal right, + up.
+  // Bucket: ±90° drawn as ±90°. Pulled implement: ±7° magnified onto a ±60° arc.
+  const PULL_MAX = 7, PULL_ARC = 60;
+  const isPulled = () => S.implType === 'pulled';
+  const implMap = a => isPulled() ? a * PULL_ARC / PULL_MAX : a;           // reading -> drawn angle
+  const implRange = () => isPulled() ? PULL_MAX : 90;
+  const limits = () => isPulled() ? { upper: S.upperP, lower: S.lowerP } : { upper: S.upper, lower: S.lower };
+  function buildImplScale() {
+    const g = $('implScale'); g.innerHTML = '';
+    const R0 = 100, top = implMap(implRange());
+    el('path', { d: arc(0, 0, R0, -top, top), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
+    const ticks = isPulled() ? [-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7] : [-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90];
+    const majors = isPulled() ? [-7,-5,0,5,7] : [-90,-45,0,45,90];
+    for (const v of ticks) {
+      const m = implMap(v), major = majors.includes(v), len = major ? 12 : 6;
+      const [x1, y1] = P(0, 0, R0, m), [x2, y2] = P(0, 0, R0 - len, m);
       el('line', { x1, y1, x2, y2, stroke: '#5a5555', 'stroke-width': major ? 2 : 1 }, g);
       if (major) {
-        const [tx, ty] = P(0, 0, 110, a);
-        el('text', { x: tx, y: ty + 3, 'text-anchor': a === 90 || a === -90 ? 'middle' : 'start', class: 'tl' }, g)
-          .textContent = (a > 0 ? '+' : '') + a + '°';
+        const [tx, ty] = P(0, 0, 110, m);
+        el('text', { x: tx, y: ty + 3, 'text-anchor': Math.abs(m) >= 85 ? 'middle' : 'start', class: 'tl' }, g)
+          .textContent = (v > 0 ? '+' : '') + v + '°';
       }
     }
-  })();
+    $('bucket').style.display = isPulled() ? 'none' : '';
+    $('loaderArm').style.display = isPulled() ? 'none' : '';
+    $('pulled').style.display = isPulled() ? '' : 'none';
+    $('tractorStub').style.display = isPulled() ? '' : 'none';
+  }
 
   // bank: top arc centered on (0,10), ±45°, + = right side down (clockwise)
   const BCX = 0, BCY = 10, BR = 96, BMAX = 45;
@@ -511,13 +550,16 @@
     const zi = $('implAlarmZones'); zi.innerHTML = '';
     const zone = (g, d) => el('path', { d, fill: 'none', stroke: '#ff3b30', 'stroke-width': 7, opacity: .7 }, g);
     const mark = (g, x1, y1, x2, y2) => el('line', { x1, y1, x2, y2, stroke: '#ff3b30', 'stroke-width': 2.5 }, g);
-    if (S.upper !== null && S.upper < 90) {
-      zone(zi, arc(0, 0, 100, S.upper, 90));
-      const [a, b] = P(0, 0, 86, S.upper), [c, d] = P(0, 0, 106, S.upper); mark(zi, a, b, c, d);
+    const L = limits(), rng = implRange(), top = implMap(rng);
+    if (L.upper !== null && L.upper < rng) {
+      const m = implMap(L.upper);
+      zone(zi, arc(0, 0, 100, m, top));
+      const [a, b] = P(0, 0, 86, m), [c, d] = P(0, 0, 106, m); mark(zi, a, b, c, d);
     }
-    if (S.lower !== null && S.lower > -90) {
-      zone(zi, arc(0, 0, 100, S.lower, -90));
-      const [a, b] = P(0, 0, 86, S.lower), [c, d] = P(0, 0, 106, S.lower); mark(zi, a, b, c, d);
+    if (L.lower !== null && L.lower > -rng) {
+      const m = implMap(L.lower);
+      zone(zi, arc(0, 0, 100, m, -top));
+      const [a, b] = P(0, 0, 86, m), [c, d] = P(0, 0, 106, m); mark(zi, a, b, c, d);
     }
     const zb = $('bankAlarmZones'); zb.innerHTML = '';
     if (S.bankAlarm && S.bankAlarm < BMAX) {
@@ -563,25 +605,28 @@
   }, 50);
 
   // ---- render ----
-  const fmt = a => { const n = Math.round(a); return (n > 0 ? '+' : '') + (Object.is(n, -0) ? 0 : n) + '°'; };
+  const fmt = (a, dec = 0) => { const n = Number(a.toFixed(dec)); return (n > 0 ? '+' : '') + (Object.is(n, -0) ? 0 : n).toFixed(dec) + '°'; };
   function render() {
     const a = implAngle(), b = bankAngle();
     // implement
-    const implAlarm = a !== null && ((S.upper !== null && a > S.upper) || (S.lower !== null && a < S.lower));
+    const L = limits();
+    const implAlarm = a !== null && ((L.upper !== null && a > L.upper) || (L.lower !== null && a < L.lower));
     const implOk = a !== null && Math.abs(a) <= S.tol;
     const ci = implAlarm ? 'var(--bad)' : implOk ? 'var(--ok)' : 'var(--chrome)';
     $('gImpl').classList.toggle('alarm', implAlarm);
-    $('bucket').style.color = ci;
+    $('bucket').style.color = ci; $('pulled').style.color = ci;
     if (a === null) { $('implNum').textContent = '--°'; $('implDir').textContent = ''; }
     else {
-      const t = fmt(a);
+      const t = fmt(a, S.implDec);
       $('implNum').textContent = t;
-      $('implNum').setAttribute('font-size', t.length > 4 ? 40 : 50);
+      $('implNum').setAttribute('font-size', t.length > 5 ? 36 : t.length > 4 ? 42 : 50);
       $('implNum').style.fill = ci;
       $('implDir').textContent = implAlarm ? (a > 0 ? 'ABOVE UPPER LIMIT' : 'BELOW LOWER LIMIT')
                                 : implOk ? 'Level' : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
       $('implDir').style.fill = implAlarm ? 'var(--bad)' : 'var(--muted)';
-      $('bucket').setAttribute('transform', `rotate(${-Math.max(-95, Math.min(95, a))})`);
+      const lim = implRange() * (isPulled() ? 1.07 : 95 / 90);
+      const rot = `rotate(${-implMap(Math.max(-lim, Math.min(lim, a)))})`;
+      $('bucket').setAttribute('transform', rot); $('pulled').setAttribute('transform', rot);
     }
     // bank
     const bankAlarm = b !== null && S.bankAlarm > 0 && Math.abs(b) > S.bankAlarm;
@@ -713,7 +758,8 @@
     const t0 = performance.now();
     demoTimer = setInterval(() => {
       const t = (performance.now() - t0) / 1000;
-      const impl = 40 * Math.sin(t * 0.45) + (Math.random() - .5) * 1.5;
+      const impl = isPulled() ? 5.5 * Math.sin(t * 0.45) + (Math.random() - .5) * 0.3
+                              : 40 * Math.sin(t * 0.45) + (Math.random() - .5) * 1.5;
       const bank = 14 * Math.sin(t * 0.21) + (Math.random() - .5) * 1.0;
       // build sensor Euler angles for a bucket on the selected axis, tractor banked about the other
       const p = new Uint8Array(20), dv = new DataView(p.buffer);
@@ -768,6 +814,13 @@
     });
   }
   seg('segAxis', 'axis', v => v);
+  $('segImpl').querySelectorAll('button').forEach(b => b.onclick = () => {
+    if (S.implType === b.dataset.v) return;
+    S.implType = b.dataset.v;
+    S.implDec = isPulled() ? 1 : 0;                 // default readout per type; user can change it after
+    save(); buildImplScale(); drawAlarmZones(); syncSettings(); render();
+  });
+  seg('segImplDec', 'implDec', Number);
   seg('segSmooth', 'smooth', Number);
   seg('segRate', 'rate', Number);
   const num = v => { const n = parseFloat(v); return isFinite(n) && n !== 0 ? Math.abs(n) : null; };
@@ -776,21 +829,24 @@
   $('showAll').onchange = e => { S.showAll = e.target.checked; save(); };
   $('sound').onchange = e => { S.sound = e.target.checked; if (S.sound) unlockAudio(); save(); };
   $('tol').onchange = e => { S.tol = Math.max(0, Number(e.target.value) || 0); save(); render(); };
-  $('upper').onchange = e => { S.upper = num(e.target.value); save(); drawAlarmZones(); render(); };
-  $('lower').onchange = e => { const n = num(e.target.value); S.lower = n === null ? null : -n; save(); drawAlarmZones(); render(); };
+  $('upper').onchange = e => { S[isPulled() ? 'upperP' : 'upper'] = num(e.target.value); save(); drawAlarmZones(); render(); };
+  $('lower').onchange = e => { const n = num(e.target.value); S[isPulled() ? 'lowerP' : 'lower'] = n === null ? null : -n; save(); drawAlarmZones(); render(); };
   $('bankAlarm').onchange = e => { S.bankAlarm = num(e.target.value); save(); drawAlarmZones(); render(); };
 
   function syncSettings() {
     const mark = (id, v) => $(id).querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.dataset.v === String(v)));
     mark('segAxis', S.axis); mark('segSmooth', S.smooth); mark('segRate', S.rate);
+    mark('segImpl', S.implType); mark('segImplDec', S.implDec);
+    document.querySelectorAll('.limMode').forEach(x => x.textContent = isPulled() ? 'pulled implements' : 'the bucket');
     $('invert').checked = S.invert; $('invertBank').checked = S.invertBank; $('showAll').checked = S.showAll; $('sound').checked = S.sound;
     $('tol').value = S.tol;
-    $('upper').value = S.upper ?? ''; $('lower').value = S.lower === null ? '' : Math.abs(S.lower);
+    const L = limits();
+    $('upper').value = L.upper ?? ''; $('lower').value = L.lower === null ? '' : Math.abs(L.lower);
     $('bankAlarm').value = S.bankAlarm ?? '';
     $('zeroVal').textContent = `${Math.round(S.zero)}° / ${Math.round(S.zeroBank)}°`;
   }
 
-  syncSettings(); drawAlarmZones(); render();
+  buildImplScale(); syncSettings(); drawAlarmZones(); render();
   if (!navigator.bluetooth) showNoBluetooth();
 
   // test hook
