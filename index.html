@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d0c0c">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="color-scheme" content="dark">
 <title>Tilt Trac | Red Dog Tractors</title>
 <style>
   :root{
@@ -12,7 +14,9 @@
     --red:#e31e24; --chrome:#cfd8e0; --accent:var(--red); --ok:#2fbf71; --warn:#f5a524; --bad:#ff3b30;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  html{background:var(--bg);color-scheme:dark;min-height:100%}
+  html::before{content:"";position:fixed;top:-200px;left:-200px;right:-200px;bottom:-200px;background:var(--bg);z-index:-1;pointer-events:none}
+  html,body{margin:0;height:100%;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
     overscroll-behavior:none;-webkit-user-select:none;user-select:none}
   body{display:flex;flex-direction:column;
@@ -36,7 +40,8 @@
     border-radius:12px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer}
   button:active{transform:scale(.97)}
   button.primary{background:var(--accent);border-color:var(--accent)}
-  button.icon{padding:10px 12px}
+  button.icon{padding:0;width:40px;height:42px;display:flex;align-items:center;justify-content:center;flex:none}
+  .gearIco{width:28px;height:28px;display:block}
 
   /* gauges */
   main{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:space-evenly;gap:4px;position:relative;padding:4px 0}
@@ -70,7 +75,8 @@
     .hstatus{display:flex;align-items:center;gap:8px;flex:1;min-width:0;font-size:14px;color:var(--muted)}
     #status2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .land{display:inline-block;padding:8px 16px;font-size:15px;flex:none}
-    button.icon{padding:6px 10px}
+    button.icon{width:36px;height:34px}
+    .gearIco{width:25px;height:25px}
     body.connected #btnConnect2{display:none}
     body .statusbar,body footer{display:none}
     main{flex-direction:row;gap:8px}
@@ -143,7 +149,7 @@
   <div class="hstatus"><span class="dot" id="dot2"></span><span id="status2">Not connected</span></div>
   <button class="primary land" id="btnConnect2">Connect</button>
   <button class="land" id="btnZero2">Zero</button>
-  <button class="icon" id="btnSettings" aria-label="Settings">⚙︎</button>
+  <button class="icon" id="btnSettings" aria-label="Settings"><svg class="gearIco" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M20.02 9.52 L23.04 10.11 L23.04 13.89 L20.02 14.48 L19.43 15.92 L21.15 18.47 L18.47 21.15 L15.92 19.43 L14.48 20.02 L13.89 23.04 L10.11 23.04 L9.52 20.02 L8.08 19.43 L5.53 21.15 L2.85 18.47 L4.57 15.92 L3.98 14.48 L0.96 13.89 L0.96 10.11 L3.98 9.52 L4.57 8.08 L2.85 5.53 L5.53 2.85 L8.08 4.57 L9.52 3.98 L10.11 0.96 L13.89 0.96 L14.48 3.98 L15.92 4.57 L18.47 2.85 L21.15 5.53 L19.43 8.08 Z M12 8.2 A3.8 3.8 0 1 0 12 15.8 A3.8 3.8 0 1 0 12 8.2 Z"/></svg></button>
 </header>
 <div class="statusbar">
   <span class="dot" id="dot"></span>
@@ -233,7 +239,7 @@
   <!-- ===== Implement angle scale (side view) ===== -->
   <div class="gauge stale" id="gImpl">
     <svg viewBox="-124 -118 248 236" aria-label="Implement angle">
-      <text class="cap" x="-120" y="-104">IMPLEMENT</text>
+      <text class="cap" id="implCap" x="-120" y="-104">IMPLEMENT</text>
       <g id="implScale"></g>
       <g id="implAlarmZones"></g>
       <line x1="-10" y1="0" x2="106" y2="0" stroke="#3a3636" stroke-width="1" stroke-dasharray="4 4"/>
@@ -241,9 +247,10 @@
       <path id="loaderArm" d="M -46 -46 L -6 -6" stroke="#55504f" stroke-width="12" stroke-linecap="round"/>
       <!-- tractor rear wheel + drawbar (fixed, pulled mode) -->
       <g id="tractorStub" style="display:none">
-        <circle cx="-62" cy="-18" r="26" fill="#1d1c1c" stroke="#55504f" stroke-width="5"/>
-        <circle cx="-62" cy="-18" r="8" fill="#55504f"/>
-        <path d="M -40 0 L -6 0" stroke="#55504f" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="-82" cy="-24" r="24" fill="#1d1c1c" stroke="#55504f" stroke-width="5"/>
+        <circle cx="-82" cy="-24" r="7" fill="#55504f"/>
+        <path d="M -70 -6 L -50 0" stroke="#55504f" stroke-width="6" stroke-linecap="round"/>
+        <line id="drawbar" x1="-50" y1="0" x2="20" y2="0" stroke="#55504f" stroke-width="8" stroke-linecap="round"/>
       </g>
       <!-- bucket (rotates; floor/cutting edge = 0° line) -->
       <g id="bucket" style="color:var(--chrome)">
@@ -266,9 +273,10 @@
           <circle cx="34" cy="-3" r="10"/><circle cx="52" cy="-3" r="10"/><circle cx="70" cy="-3" r="10"/><circle cx="88" cy="-3" r="10"/>
         </g>
         <g fill="currentColor"><circle cx="34" cy="-3" r="2.5"/><circle cx="52" cy="-3" r="2.5"/><circle cx="70" cy="-3" r="2.5"/><circle cx="88" cy="-3" r="2.5"/></g>
-        <circle cx="100" cy="0" r="4" fill="currentColor"/>
+        <circle cx="0" cy="0" r="6" fill="#f4f5f6"/>
       </g>
-      <circle cx="0" cy="0" r="6" fill="#f4f5f6"/>
+      <circle id="pivotDot" cx="0" cy="0" r="6" fill="#f4f5f6"/>
+      <circle id="rearPivot" cx="-50" cy="0" r="5" fill="#6f7680" style="display:none"/>
       <text class="num" id="implNum" x="-62" y="58" text-anchor="middle" font-size="50" style="fill:var(--chrome)">--°</text>
       <text class="sub" id="implDir" x="-62" y="78" text-anchor="middle"></text>
     </svg>
@@ -368,7 +376,7 @@
   <input id="codeIn" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="TT-XXXX-XXXX" maxlength="16" aria-label="Access code">
   <button class="primary" id="btnUnlock">Unlock</button>
   <div id="codeErr" role="alert"></div>
-  <p style="font-size:13px;margin-top:10px">Need help? Contact Red Dog Tractors at [support email].</p>
+  <p style="font-size:13px;margin-top:10px">Need help? Contact Red Dog Tractors at <a href="mailto:info@reddogtractors.com" style="color:var(--text);font-weight:600">info@reddogtractors.com</a>.</p>
 </div>
 
 <div id="splash" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
@@ -393,7 +401,7 @@
       or other loss arising from the use of Tilt Trac. By tapping "I Understand," you accept these terms and assume
       all risk of use.</p>
     <p class="fine">Tilt Trac is not affiliated with or endorsed by WitMotion. WitMotion is a trademark of its
-      respective owner.<br>Tilt Trac v1.6.1 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
+      respective owner.<br>Tilt Trac v1.6.3 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
   </div>
   <button class="primary" id="btnAccept">I Understand — Continue</button>
 </div>
@@ -542,9 +550,40 @@
   const implMap = a => isPulled() ? a * PULL_ARC / PULL_MAX : a;           // reading -> drawn angle
   const implRange = () => isPulled() ? PULL_MAX : 90;
   const limits = () => isPulled() ? { upper: S.upperP, lower: S.lowerP } : { upper: S.upper, lower: S.lower };
+  // Pulled implement: the drawbar swings about the tractor's hitch pin (PCX, 0), so the front of the implement
+  // (the hitch connection) rides a right-convex arc of radius PR midway between tractor and implement. + = front up.
+  const PCX = -50, PR = 70, PSCALE = 0.9;
+  const pullPt = (r, m) => P(PCX, 0, r, m);                                // point on the pitch arc
+  const placePulled = m => {
+    const [hx, hy] = pullPt(PR, m);
+    $('pulled').setAttribute('transform', `translate(${hx.toFixed(2)} ${hy.toFixed(2)}) rotate(${m}) scale(${PSCALE})`);
+    $('drawbar').setAttribute('x2', hx.toFixed(2)); $('drawbar').setAttribute('y2', hy.toFixed(2));
+  };
   function buildImplScale() {
     const g = $('implScale'); g.innerHTML = '';
     const R0 = 100, top = implMap(implRange());
+    $('implCap').textContent = isPulled() ? 'IMPLEMENT PITCH' : 'IMPLEMENT';
+    $('pivotDot').style.display = isPulled() ? 'none' : '';
+    $('rearPivot').style.display = isPulled() ? '' : 'none';
+    const [nx, ny, dy] = isPulled() ? [-75, 80, 98] : [-62, 58, 78];        // readout position
+    $('implNum').setAttribute('x', nx); $('implNum').setAttribute('y', ny);
+    $('implDir').setAttribute('x', nx); $('implDir').setAttribute('y', dy);
+    if (isPulled()) {
+      el('path', { d: arc(PCX, 0, PR, -top, top), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
+      for (let v = -PULL_MAX; v <= PULL_MAX; v++) {
+        const m = implMap(v), major = [0, 5, 7].includes(Math.abs(v)), len = major ? 12 : 6;
+        const [x1, y1] = pullPt(PR, m), [x2, y2] = pullPt(PR + len, m);
+        el('line', { x1, y1, x2, y2, stroke: '#5a5555', 'stroke-width': major ? 2 : 1 }, g);
+        if (major && v !== 0) {
+          const [tx, ty] = pullPt(PR + 15, m);
+          el('text', { x: tx, y: ty + 3, 'text-anchor': 'start', class: 'tl' }, g).textContent = (v > 0 ? '+' : '') + v + '°';
+        }
+      }
+      $('bucket').style.display = 'none'; $('loaderArm').style.display = 'none';
+      $('pulled').style.display = ''; $('tractorStub').style.display = '';
+      placePulled(0);
+      return;
+    }
     el('path', { d: arc(0, 0, R0, -top, top), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
     const ticks = isPulled() ? [-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7] : [-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90];
     const majors = isPulled() ? [-7,-5,0,5,7] : [-90,-45,0,45,90];
@@ -594,6 +633,14 @@
     const zone = (g, d) => el('path', { d, fill: 'none', stroke: '#ff3b30', 'stroke-width': 7, opacity: .7 }, g);
     const mark = (g, x1, y1, x2, y2) => el('line', { x1, y1, x2, y2, stroke: '#ff3b30', 'stroke-width': 2.5 }, g);
     const L = limits(), rng = implRange(), top = implMap(rng);
+    if (isPulled()) {
+      for (const [lim, end] of [[L.upper, top], [L.lower, -top]]) {
+        if (lim === null || Math.abs(lim) >= rng) continue;
+        const m = implMap(lim);
+        zone(zi, arc(PCX, 0, PR, m, end));
+        const [a, b] = pullPt(PR - 6, m), [c, d] = pullPt(PR + 14, m); mark(zi, a, b, c, d);
+      }
+    } else {
     if (L.upper !== null && L.upper < rng) {
       const m = implMap(L.upper);
       zone(zi, arc(0, 0, 100, m, top));
@@ -603,6 +650,7 @@
       const m = implMap(L.lower);
       zone(zi, arc(0, 0, 100, m, -top));
       const [a, b] = P(0, 0, 86, m), [c, d] = P(0, 0, 106, m); mark(zi, a, b, c, d);
+    }
     }
     const zb = $('bankAlarmZones'); zb.innerHTML = '';
     const BL = bankLimit();
@@ -666,11 +714,13 @@
       $('implNum').setAttribute('font-size', t.length > 5 ? 36 : t.length > 4 ? 42 : 50);
       $('implNum').style.fill = ci;
       $('implDir').textContent = implAlarm ? (a > 0 ? 'ABOVE UPPER LIMIT' : 'BELOW LOWER LIMIT')
-                                : implOk ? 'Level' : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
+                                : implOk ? 'Level' : isPulled() ? (a > 0 ? 'Front up ▲' : 'Front down ▼')
+                                : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
       $('implDir').style.fill = implAlarm ? 'var(--bad)' : 'var(--muted)';
       const lim = implRange() * (isPulled() ? 1.07 : 95 / 90);
-      const rot = `rotate(${-implMap(Math.max(-lim, Math.min(lim, a)))})`;
-      $('bucket').setAttribute('transform', rot); $('pulled').setAttribute('transform', rot);
+      const m = implMap(Math.max(-lim, Math.min(lim, a)));
+      $('bucket').setAttribute('transform', `rotate(${-m})`);
+      if (isPulled()) placePulled(m);                                          // front rides the arc, body tilts by the pitch
     }
     // bank
     const BL = bankLimit();
