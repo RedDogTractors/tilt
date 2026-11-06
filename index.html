@@ -154,7 +154,7 @@
   <!-- ===== Tractor bank indicator (rear view) ===== -->
   <div class="gauge stale" id="gBank">
     <svg viewBox="-118 -124 236 246" aria-label="Tractor bank angle">
-      <text class="cap" x="-114" y="-113">TRACTOR BANK</text>
+      <text class="cap" id="bankCap" x="-114" y="-113">TRACTOR BANK</text>
       <g id="bankScale"></g>
       <g id="bankAlarmZones"></g>
       <!-- fixed level reference -->
@@ -166,6 +166,7 @@
         <!-- pointer to the scale -->
         <path d="M 0 -82 L -6 -70 L 6 -70 Z" fill="currentColor"/>
         <line x1="0" y1="-70" x2="0" y2="-64" stroke="currentColor" stroke-width="2"/>
+        <g id="tractorRear">
         <!-- cab / ROPS -->
         <path d="M -26 -16 L -24 -58 Q -24 -62 -20 -62 L 20 -62 Q 24 -62 24 -58 L 26 -16 Z"
               fill="#2b2a2a" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
@@ -189,6 +190,39 @@
         <path d="M -16 14 L -22 30 M 16 14 L 22 30 M -24 30 L -18 30 M 18 30 L 24 30 M 0 -6 L 0 26"
               stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
         <circle cx="0" cy="18" r="4" fill="#1d1c1c" stroke="currentColor" stroke-width="2"/>
+        </g>
+        <!-- pulled implement, rear view (disk harrow) -->
+        <g id="implRear" style="display:none" transform="translate(0 41) scale(0.8) translate(0 -41)">
+          <line x1="0" y1="-64" x2="0" y2="-8" stroke="currentColor" stroke-width="2" opacity=".6"/>
+          <!-- center frame + lift cylinder -->
+          <path d="M -22 -6 L -12 -30 L 12 -30 L 22 -6" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="-6" y1="-28" x2="-16" y2="-8" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+          <!-- main toolbar -->
+          <rect x="-82" y="-8" width="164" height="9" rx="2" fill="#3a3838" stroke="currentColor" stroke-width="2.5"/>
+          <!-- gang hangers + gang bar -->
+          <path d="M -66 1 L -66 9 M -36 1 L -36 9 M 36 1 L 36 9 M 66 1 L 66 9" stroke="currentColor" stroke-width="3"/>
+          <rect x="-82" y="9" width="58" height="5" rx="2" fill="currentColor" fill-opacity=".85"/>
+          <rect x="24" y="9" width="58" height="5" rx="2" fill="currentColor" fill-opacity=".85"/>
+          <!-- disc blades seen from behind -->
+          <g fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="2">
+            <ellipse cx="-76" cy="26" rx="3.5" ry="13" transform="rotate(-14 -76 26)"/>
+            <ellipse cx="-64" cy="26" rx="3.5" ry="13" transform="rotate(-14 -64 26)"/>
+            <ellipse cx="-52" cy="26" rx="3.5" ry="13" transform="rotate(-14 -52 26)"/>
+            <ellipse cx="-40" cy="26" rx="3.5" ry="13" transform="rotate(-14 -40 26)"/>
+            <ellipse cx="-28" cy="26" rx="3.5" ry="13" transform="rotate(-14 -28 26)"/>
+            <ellipse cx="28" cy="26" rx="3.5" ry="13" transform="rotate(14 28 26)"/>
+            <ellipse cx="40" cy="26" rx="3.5" ry="13" transform="rotate(14 40 26)"/>
+            <ellipse cx="52" cy="26" rx="3.5" ry="13" transform="rotate(14 52 26)"/>
+            <ellipse cx="64" cy="26" rx="3.5" ry="13" transform="rotate(14 64 26)"/>
+            <ellipse cx="76" cy="26" rx="3.5" ry="13" transform="rotate(14 76 26)"/>
+          </g>
+          <!-- transport wheels -->
+          <g fill="#1d1c1c" stroke="currentColor" stroke-width="2.5">
+            <rect x="-18" y="6" width="11" height="34" rx="4"/>
+            <rect x="7" y="6" width="11" height="34" rx="4"/>
+          </g>
+          <line x1="-22" y1="10" x2="22" y2="10" stroke="currentColor" stroke-width="3"/>
+        </g>
       </g>
       <circle cx="0" cy="10" r="2.5" fill="#f4f5f6"/>
       <text class="num" id="bankNum" x="0" y="96" text-anchor="middle" font-size="38" style="fill:var(--chrome)">--°</text>
@@ -284,8 +318,8 @@
       <input type="checkbox" id="invertBank">
     </div>
     <div class="row">
-      <div><label>Bank alarm (± °)</label><small>Alarm when leaning past this either way. Blank = off.</small></div>
-      <input type="number" id="bankAlarm" inputmode="decimal" min="0" max="45" step="1" placeholder="Off">
+      <div><label>Bank alarm (± °)</label><small>Alarm when leaning past this either way. Blank = off. Saved separately for <span class="bankMode">bucket mode</span>.</small></div>
+      <input type="number" id="bankAlarm" inputmode="decimal" min="0" max="45" step="0.1" placeholder="Off">
     </div>
     <div class="row">
       <div><label>Bank sound alarm</label><small>Beeps past the bank limit, faster beyond +5°. Tap the tractor gauge to silence for 30 s.</small></div>
@@ -359,7 +393,7 @@
       or other loss arising from the use of Tilt Trac. By tapping "I Understand," you accept these terms and assume
       all risk of use.</p>
     <p class="fine">Tilt Trac is not affiliated with or endorsed by WitMotion. WitMotion is a trademark of its
-      respective owner.<br>Tilt Trac v1.5 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
+      respective owner.<br>Tilt Trac v1.6.1 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
   </div>
   <button class="primary" id="btnAccept">I Understand — Continue</button>
 </div>
@@ -430,7 +464,7 @@
 
   // ---- settings (per-device convenience; page works without storage) ----
   const DEFAULTS = { axis:'pitch', invert:false, invertBank:false, zero:0, zeroBank:0, tol:1,
-                     upper:null, lower:null, upperP:null, lowerP:null, implType:'bucket', implDec:0, bankAlarm:null, sound:true, smooth:2, rate:6, showAll:false };
+                     upper:null, lower:null, upperP:null, lowerP:null, implType:'bucket', implDec:0, bankAlarm:null, bankAlarmP:null, sound:true, smooth:2, rate:6, showAll:false };
   let S = { ...DEFAULTS };
   try {
     const saved = JSON.parse(localStorage.getItem('witTilt') || '{}');
@@ -531,20 +565,29 @@
   }
 
   // bank: top arc centered on (0,10), ±45°, + = right side down (clockwise)
+  // Tractor (bucket mode): ±45° drawn as ±45°. Pulled implement: ±7° magnified onto the same ±45° arc.
   const BCX = 0, BCY = 10, BR = 96, BMAX = 45;
-  (function buildBankScale() {
-    const g = $('bankScale');
+  const bankRange = () => isPulled() ? PULL_MAX : BMAX;
+  const bankMap = b => isPulled() ? b * BMAX / PULL_MAX : b;               // reading -> drawn angle
+  const bankLimit = () => isPulled() ? S.bankAlarmP : S.bankAlarm;
+  function buildBankScale() {
+    const g = $('bankScale'); g.innerHTML = '';
     el('path', { d: arc(BCX, BCY, BR, 90 + BMAX, 90 - BMAX), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
-    for (let b = -BMAX; b <= BMAX; b += 5) {
-      const major = b % 10 === 0 || Math.abs(b) === 45, len = major ? 11 : 5;
-      const [x1, y1] = P(BCX, BCY, BR, 90 - b), [x2, y2] = P(BCX, BCY, BR + len, 90 - b);
+    const step = isPulled() ? 1 : 5, rng = bankRange();
+    for (let b = -rng; b <= rng; b += step) {
+      const major = isPulled() ? [0, 5, 7].includes(Math.abs(b)) : (b % 10 === 0 || Math.abs(b) === 45);
+      const len = major ? 11 : 5, m = bankMap(b);
+      const [x1, y1] = P(BCX, BCY, BR, 90 - m), [x2, y2] = P(BCX, BCY, BR + len, 90 - m);
       el('line', { x1, y1, x2, y2, stroke: '#5a5555', 'stroke-width': major ? 2 : 1 }, g);
-      if (major && b !== 0 && Math.abs(b) !== 40) {
-        const [tx, ty] = P(BCX, BCY, BR + 19, 90 - b);
-        el('text', { x: tx, y: ty + 3, 'text-anchor': 'middle', class: 'tl' }, g).textContent = Math.abs(b);
+      if (major && b !== 0 && (isPulled() || Math.abs(b) !== 40)) {
+        const [tx, ty] = P(BCX, BCY, BR + 19, 90 - m);
+        el('text', { x: tx, y: ty + 3, 'text-anchor': 'middle', class: 'tl' }, g).textContent = Math.abs(b) + (isPulled() ? '°' : '');
       }
     }
-  })();
+    $('tractorRear').style.display = isPulled() ? 'none' : '';
+    $('implRear').style.display = isPulled() ? '' : 'none';
+    $('bankCap').textContent = isPulled() ? 'IMPLEMENT BANK' : 'TRACTOR BANK';
+  }
 
   function drawAlarmZones() {
     const zi = $('implAlarmZones'); zi.innerHTML = '';
@@ -562,9 +605,10 @@
       const [a, b] = P(0, 0, 86, m), [c, d] = P(0, 0, 106, m); mark(zi, a, b, c, d);
     }
     const zb = $('bankAlarmZones'); zb.innerHTML = '';
-    if (S.bankAlarm && S.bankAlarm < BMAX) {
+    const BL = bankLimit();
+    if (BL && BL < bankRange()) {
       for (const s of [1, -1]) {
-        const lim = s * S.bankAlarm;
+        const lim = s * bankMap(BL);
         zone(zb, arc(BCX, BCY, BR + 4, 90 - lim, 90 - s * BMAX));
         const [a, b] = P(BCX, BCY, BR - 6, 90 - lim), [c, d] = P(BCX, BCY, BR + 14, 90 - lim); mark(zb, a, b, c, d);
       }
@@ -600,7 +644,7 @@
     const now = performance.now();
     const fresh = lastPacketAt && now - lastPacketAt < 1500;
     if (!S.sound || !bankAlarmOn || !fresh || now < muteUntil) return;
-    const gap = bankExcess > 5 ? 250 : 550;
+    const gap = bankExcess > (isPulled() ? 2 : 5) ? 250 : 550;
     if (now - lastBeep >= gap) { lastBeep = now; beep(); }
   }, 50);
 
@@ -629,21 +673,24 @@
       $('bucket').setAttribute('transform', rot); $('pulled').setAttribute('transform', rot);
     }
     // bank
-    const bankAlarm = b !== null && S.bankAlarm > 0 && Math.abs(b) > S.bankAlarm;
-    bankAlarmOn = bankAlarm; bankExcess = bankAlarm ? Math.abs(b) - S.bankAlarm : 0;
+    const BL = bankLimit();
+    const bankAlarm = b !== null && BL > 0 && Math.abs(b) > BL;
+    bankAlarmOn = bankAlarm; bankExcess = bankAlarm ? Math.abs(b) - BL : 0;
     const bankOk = b !== null && Math.abs(b) <= S.tol;
     const cb = bankAlarm ? 'var(--bad)' : bankOk ? 'var(--ok)' : 'var(--chrome)';
     $('gBank').classList.toggle('alarm', bankAlarm);
     $('tractor').style.color = cb;
     if (b === null) { $('bankNum').textContent = '--°'; $('bankDir').textContent = ''; }
     else {
-      const n = Math.abs(Math.round(b));
-      $('bankNum').textContent = n + '°';
+      const bdec = isPulled() ? 1 : 0;                   // tenths for the implement bank in pulled mode
+      const txt = Math.abs(b).toFixed(bdec), n = Number(txt);
+      $('bankNum').textContent = txt + '°';
       $('bankNum').style.fill = cb;
       $('bankDir').textContent = bankAlarm ? 'BANK LIMIT EXCEEDED' + (b > 0 ? ' — RIGHT' : ' — LEFT') + (performance.now() < muteUntil ? ' (silenced)' : '')
                                 : n === 0 || bankOk ? 'Level' : (b > 0 ? 'Leaning right ▶' : '◀ Leaning left');
       $('bankDir').style.fill = bankAlarm ? 'var(--bad)' : 'var(--muted)';
-      $('tractor').setAttribute('transform', `rotate(${Math.max(-BMAX - 3, Math.min(BMAX + 3, b))} ${BCX} ${BCY})`);
+      const bl = bankRange() * 1.07;
+      $('tractor').setAttribute('transform', `rotate(${bankMap(Math.max(-bl, Math.min(bl, b)))} ${BCX} ${BCY})`);
     }
     $('raw').textContent = `Roll ${last.roll?.toFixed(1) ?? '—'}°   Pitch ${last.pitch?.toFixed(1) ?? '—'}°   Yaw ${last.yaw?.toFixed(1) ?? '—'}°`;
   }
@@ -760,7 +807,8 @@
       const t = (performance.now() - t0) / 1000;
       const impl = isPulled() ? 5.5 * Math.sin(t * 0.45) + (Math.random() - .5) * 0.3
                               : 40 * Math.sin(t * 0.45) + (Math.random() - .5) * 1.5;
-      const bank = 14 * Math.sin(t * 0.21) + (Math.random() - .5) * 1.0;
+      const bank = isPulled() ? 5 * Math.sin(t * 0.21) + (Math.random() - .5) * 0.3
+                              : 14 * Math.sin(t * 0.21) + (Math.random() - .5) * 1.0;
       // build sensor Euler angles for a bucket on the selected axis, tractor banked about the other
       const p = new Uint8Array(20), dv = new DataView(p.buffer);
       p[0] = 0x55; p[1] = 0x61;
@@ -818,7 +866,7 @@
     if (S.implType === b.dataset.v) return;
     S.implType = b.dataset.v;
     S.implDec = isPulled() ? 1 : 0;                 // default readout per type; user can change it after
-    save(); buildImplScale(); drawAlarmZones(); syncSettings(); render();
+    save(); buildImplScale(); buildBankScale(); drawAlarmZones(); syncSettings(); render();
   });
   seg('segImplDec', 'implDec', Number);
   seg('segSmooth', 'smooth', Number);
@@ -831,7 +879,7 @@
   $('tol').onchange = e => { S.tol = Math.max(0, Number(e.target.value) || 0); save(); render(); };
   $('upper').onchange = e => { S[isPulled() ? 'upperP' : 'upper'] = num(e.target.value); save(); drawAlarmZones(); render(); };
   $('lower').onchange = e => { const n = num(e.target.value); S[isPulled() ? 'lowerP' : 'lower'] = n === null ? null : -n; save(); drawAlarmZones(); render(); };
-  $('bankAlarm').onchange = e => { S.bankAlarm = num(e.target.value); save(); drawAlarmZones(); render(); };
+  $('bankAlarm').onchange = e => { S[isPulled() ? 'bankAlarmP' : 'bankAlarm'] = num(e.target.value); save(); drawAlarmZones(); render(); };
 
   function syncSettings() {
     const mark = (id, v) => $(id).querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.dataset.v === String(v)));
@@ -842,11 +890,12 @@
     $('tol').value = S.tol;
     const L = limits();
     $('upper').value = L.upper ?? ''; $('lower').value = L.lower === null ? '' : Math.abs(L.lower);
-    $('bankAlarm').value = S.bankAlarm ?? '';
+    $('bankAlarm').value = bankLimit() ?? '';
+    document.querySelectorAll('.bankMode').forEach(x => x.textContent = isPulled() ? 'pulled implements' : 'bucket mode');
     $('zeroVal').textContent = `${Math.round(S.zero)}° / ${Math.round(S.zeroBank)}°`;
   }
 
-  buildImplScale(); syncSettings(); drawAlarmZones(); render();
+  buildImplScale(); buildBankScale(); syncSettings(); drawAlarmZones(); render();
   if (!navigator.bluetooth) showNoBluetooth();
 
   // test hook
