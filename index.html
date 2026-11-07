@@ -5,18 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d0c0c">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="color-scheme" content="dark">
-<title>Tilt Trac | Red Dog Tractors</title>
+<title>TILT TRAC | Red Dog Tractors</title>
 <style>
   :root{
     --bg:#0d0c0c; --panel:#1b1919; --line:#333030; --text:#f4f5f6; --muted:#9a9fa6;
     --red:#e31e24; --chrome:#cfd8e0; --accent:var(--red); --ok:#2fbf71; --warn:#f5a524; --bad:#ff3b30;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html{background:var(--bg);color-scheme:dark;min-height:100%}
-  html::before{content:"";position:fixed;top:-200px;left:-200px;right:-200px;bottom:-200px;background:var(--bg);z-index:-1;pointer-events:none}
-  html,body{margin:0;height:100%;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--text);
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
     overscroll-behavior:none;-webkit-user-select:none;user-select:none}
   body{display:flex;flex-direction:column;
@@ -40,8 +36,7 @@
     border-radius:12px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer}
   button:active{transform:scale(.97)}
   button.primary{background:var(--accent);border-color:var(--accent)}
-  button.icon{padding:0;width:40px;height:42px;display:flex;align-items:center;justify-content:center;flex:none}
-  .gearIco{width:28px;height:28px;display:block}
+  button.icon{padding:10px 12px}
 
   /* gauges */
   main{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:space-evenly;gap:4px;position:relative;padding:4px 0}
@@ -51,7 +46,8 @@
   .gauge.alarm{animation:alarmPulse 1s ease-in-out infinite}
   @keyframes alarmPulse{0%,100%{border-color:rgba(255,59,48,.25)}50%{border-color:rgba(255,59,48,.95)}}
   svg text{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif}
-  .num{font-weight:700;font-variant-numeric:tabular-nums;transition:fill .2s}
+  .num{font-weight:700;font-variant-numeric:tabular-nums;transition:fill .2s;paint-order:stroke;stroke:#0d0c0c;stroke-width:8px;stroke-linejoin:round}
+  #implDir,#bankDir{paint-order:stroke;stroke:#0d0c0c;stroke-width:5px;stroke-linejoin:round}
   .cap{font-size:9px;letter-spacing:.18em;fill:var(--muted);font-weight:600}
   .sub{font-size:11px;fill:var(--muted)}
   .tl{font-size:8px;fill:#6f7680}
@@ -75,8 +71,7 @@
     .hstatus{display:flex;align-items:center;gap:8px;flex:1;min-width:0;font-size:14px;color:var(--muted)}
     #status2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .land{display:inline-block;padding:8px 16px;font-size:15px;flex:none}
-    button.icon{width:36px;height:34px}
-    .gearIco{width:25px;height:25px}
+    button.icon{padding:6px 10px}
     body.connected #btnConnect2{display:none}
     body .statusbar,body footer{display:none}
     main{flex-direction:row;gap:8px}
@@ -149,7 +144,7 @@
   <div class="hstatus"><span class="dot" id="dot2"></span><span id="status2">Not connected</span></div>
   <button class="primary land" id="btnConnect2">Connect</button>
   <button class="land" id="btnZero2">Zero</button>
-  <button class="icon" id="btnSettings" aria-label="Settings"><svg class="gearIco" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M20.02 9.52 L23.04 10.11 L23.04 13.89 L20.02 14.48 L19.43 15.92 L21.15 18.47 L18.47 21.15 L15.92 19.43 L14.48 20.02 L13.89 23.04 L10.11 23.04 L9.52 20.02 L8.08 19.43 L5.53 21.15 L2.85 18.47 L4.57 15.92 L3.98 14.48 L0.96 13.89 L0.96 10.11 L3.98 9.52 L4.57 8.08 L2.85 5.53 L5.53 2.85 L8.08 4.57 L9.52 3.98 L10.11 0.96 L13.89 0.96 L14.48 3.98 L15.92 4.57 L18.47 2.85 L21.15 5.53 L19.43 8.08 Z M12 8.2 A3.8 3.8 0 1 0 12 15.8 A3.8 3.8 0 1 0 12 8.2 Z"/></svg></button>
+  <button class="icon" id="btnSettings" aria-label="Settings">⚙︎</button>
 </header>
 <div class="statusbar">
   <span class="dot" id="dot"></span>
@@ -239,19 +234,12 @@
   <!-- ===== Implement angle scale (side view) ===== -->
   <div class="gauge stale" id="gImpl">
     <svg viewBox="-124 -118 248 236" aria-label="Implement angle">
-      <text class="cap" id="implCap" x="-120" y="-104">IMPLEMENT</text>
+      <text class="cap" x="-120" y="-104">IMPLEMENT</text>
       <g id="implScale"></g>
       <g id="implAlarmZones"></g>
-      <line x1="-10" y1="0" x2="106" y2="0" stroke="#3a3636" stroke-width="1" stroke-dasharray="4 4"/>
+      <line id="implRef" x1="-10" y1="0" x2="106" y2="0" stroke="#3a3636" stroke-width="1" stroke-dasharray="4 4"/>
       <!-- loader arm (fixed, bucket mode) -->
       <path id="loaderArm" d="M -46 -46 L -6 -6" stroke="#55504f" stroke-width="12" stroke-linecap="round"/>
-      <!-- tractor rear wheel + drawbar (fixed, pulled mode) -->
-      <g id="tractorStub" style="display:none">
-        <circle cx="-82" cy="-24" r="24" fill="#1d1c1c" stroke="#55504f" stroke-width="5"/>
-        <circle cx="-82" cy="-24" r="7" fill="#55504f"/>
-        <path d="M -70 -6 L -50 0" stroke="#55504f" stroke-width="6" stroke-linecap="round"/>
-        <line id="drawbar" x1="-50" y1="0" x2="20" y2="0" stroke="#55504f" stroke-width="8" stroke-linecap="round"/>
-      </g>
       <!-- bucket (rotates; floor/cutting edge = 0° line) -->
       <g id="bucket" style="color:var(--chrome)">
         <line x1="0" y1="0" x2="96" y2="0" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
@@ -263,20 +251,22 @@
         <circle cx="-4" cy="-42" r="4" fill="#0d0c0c" stroke="currentColor" stroke-width="2.5"/>
         <circle cx="96" cy="0" r="4" fill="currentColor"/>
       </g>
-      <!-- pulled implement, e.g. disk harrow (rotates about the hitch; frame = 0° line) -->
+      <!-- pulled implement, side view (disk harrow). Rotates about the hitch point at (0,0);
+           the tongue is drawn as an arrow pointing to the scale on the left. -->
       <g id="pulled" style="color:var(--chrome);display:none">
-        <line x1="0" y1="0" x2="100" y2="0" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
-        <path d="M 2 -2 L 26 -24" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-        <rect x="22" y="-30" width="74" height="9" rx="2" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="3"/>
-        <path d="M 34 -21 L 34 -12 M 52 -21 L 52 -12 M 70 -21 L 70 -12 M 88 -21 L 88 -12" stroke="currentColor" stroke-width="3"/>
-        <g fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="3">
-          <circle cx="34" cy="-3" r="10"/><circle cx="52" cy="-3" r="10"/><circle cx="70" cy="-3" r="10"/><circle cx="88" cy="-3" r="10"/>
+        <!-- tongue = pointer -->
+        <path d="M -70 0 L 4 0 L 22 -30" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M -90 0 L -68 -10 L -68 10 Z" fill="currentColor"/>
+        <!-- frame -->
+        <rect x="16" y="-42" width="102" height="12" rx="3" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="3.5"/>
+        <path d="M 34 -30 L 34 -18 M 60 -30 L 60 -18 M 86 -30 L 86 -18 M 110 -30 L 110 -18" stroke="currentColor" stroke-width="3.5"/>
+        <!-- disc gang -->
+        <g fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="3.5">
+          <circle cx="34" cy="-5" r="13"/><circle cx="60" cy="-5" r="13"/><circle cx="86" cy="-5" r="13"/><circle cx="110" cy="-5" r="13"/>
         </g>
-        <g fill="currentColor"><circle cx="34" cy="-3" r="2.5"/><circle cx="52" cy="-3" r="2.5"/><circle cx="70" cy="-3" r="2.5"/><circle cx="88" cy="-3" r="2.5"/></g>
-        <circle cx="0" cy="0" r="6" fill="#f4f5f6"/>
+        <g fill="currentColor"><circle cx="34" cy="-5" r="3"/><circle cx="60" cy="-5" r="3"/><circle cx="86" cy="-5" r="3"/><circle cx="110" cy="-5" r="3"/></g>
       </g>
-      <circle id="pivotDot" cx="0" cy="0" r="6" fill="#f4f5f6"/>
-      <circle id="rearPivot" cx="-50" cy="0" r="5" fill="#6f7680" style="display:none"/>
+      <circle cx="0" cy="0" r="6" fill="#f4f5f6"/>
       <text class="num" id="implNum" x="-62" y="58" text-anchor="middle" font-size="50" style="fill:var(--chrome)">--°</text>
       <text class="sub" id="implDir" x="-62" y="78" text-anchor="middle"></text>
     </svg>
@@ -296,41 +286,41 @@
 
     <h3>Implement</h3>
     <div class="row">
-      <div><label>Implement type</label><small>Pulled = plow, disk or other towed implement, shown on a magnified ±7° scale</small></div>
+      <div><label>Implement type</label><small>Bucket for a loader bucket, grapple or spear. Pulled for a plow, disk or other towed implement.</small></div>
       <div class="seg" id="segImpl"><button data-v="bucket">Bucket</button><button data-v="pulled">Pulled</button></div>
     </div>
     <div class="row">
-      <div><label>Implement readout</label><small>Tenths apply to the implement angle only</small></div>
+      <div><label>Implement readout</label><small>Whole degrees or tenths, for the implement angle</small></div>
       <div class="seg" id="segImplDec"><button data-v="0">Whole °</button><button data-v="1">Tenths</button></div>
     </div>
     <div class="row">
-      <div><label>Implement axis</label><small>The sensor axis the bucket pivots on. The other axis becomes tractor bank.</small></div>
+      <div><label>Implement axis</label><small>Start with Pitch (Y). If curling the bucket moves the bank gauge instead of the implement gauge, switch to Roll (X), then zero again.</small></div>
       <div class="seg" id="segAxis"><button data-v="roll">Roll (X)</button><button data-v="pitch">Pitch (Y)</button></div>
     </div>
     <div class="row">
-      <div><label>Reverse implement direction</label><small>Flip up / down</small></div>
+      <div><label>Reverse implement direction</label><small>Flips up and down</small></div>
       <input type="checkbox" id="invert">
     </div>
     <div class="row">
-      <div><label>Upper alarm (°)</label><small>Alarm when tilted up past this. Blank = off. Saved separately for <span class="limMode">bucket</span>.</small></div>
+      <div><label>Upper alarm (°)</label><small>Implement tilted up past this angle. Leave blank to turn off. Bucket and Pulled modes keep their own alarm settings.</small></div>
       <input type="number" id="upper" inputmode="decimal" min="0" max="90" step="0.1" placeholder="Off">
     </div>
     <div class="row">
-      <div><label>Lower alarm (°)</label><small>Alarm when tilted down past this. Enter as a positive number. Blank = off. Saved separately for <span class="limMode">bucket</span>.</small></div>
+      <div><label>Lower alarm (°)</label><small>Implement tilted down past this angle. Enter it as a positive number. Leave blank to turn off.</small></div>
       <input type="number" id="lower" inputmode="decimal" min="0" max="90" step="0.1" placeholder="Off">
     </div>
 
     <h3>Tractor bank</h3>
     <div class="row">
-      <div><label>Reverse bank direction</label><small>Flip left / right</small></div>
+      <div><label>Reverse bank direction</label><small>Flips left and right</small></div>
       <input type="checkbox" id="invertBank">
     </div>
     <div class="row">
-      <div><label>Bank alarm (± °)</label><small>Alarm when leaning past this either way. Blank = off. Saved separately for <span class="bankMode">bucket mode</span>.</small></div>
+      <div><label>Bank alarm (± °)</label><small>Tractor (or implement, in Pulled mode) leaning past this angle either way. Leave blank to turn off.</small></div>
       <input type="number" id="bankAlarm" inputmode="decimal" min="0" max="45" step="0.1" placeholder="Off">
     </div>
     <div class="row">
-      <div><label>Bank sound alarm</label><small>Beeps past the bank limit, faster beyond +5°. Tap the tractor gauge to silence for 30 s.</small></div>
+      <div><label>Bank sound alarm</label><small>Beeps when the bank alarm is active. Tap Test to hear it. Tap the bank gauge to silence the beeping for 30 seconds.</small></div>
       <div style="display:flex;gap:10px;align-items:center;flex:none">
         <button id="btnTestBeep" style="padding:8px 12px;font-size:14px">Test</button>
         <input type="checkbox" id="sound">
@@ -339,25 +329,25 @@
 
     <h3>Display &amp; sensor</h3>
     <div class="row">
-      <div><label>Zero offsets</label><small>Zero sets the current readings as the 0° reference. Clear shows the sensor's own angles.</small></div>
+      <div><label>Zero offsets</label><small>Zero sets the current position as 0°. Clear removes the zero and shows the sensor's own angles.</small></div>
       <button id="btnClearZero">Clear (<span id="zeroVal">0 / 0</span>)</button>
     </div>
     <div class="row">
-      <div><label>Level band ±°</label><small>Readouts turn green inside this band</small></div>
+      <div><label>Level band (± °)</label><small>Readings turn green and show Level within ± this angle</small></div>
       <input type="number" id="tol" inputmode="decimal" min="0" max="45" step="0.1">
     </div>
     <div class="row">
-      <div><label>Smoothing</label><small>Steadies the reading on a running tractor</small></div>
+      <div><label>Smoothing</label><small>Steadies jumpy readings on a running tractor</small></div>
       <div class="seg" id="segSmooth">
         <button data-v="0">Off</button><button data-v="1">Low</button><button data-v="2">Med</button><button data-v="3">High</button>
       </div>
     </div>
     <div class="row">
-      <div><label>Sensor rate</label><small>Sent to the sensor on connect</small></div>
+      <div><label>Sensor rate</label><small>Update speed (10 or 20 readings per second)</small></div>
       <div class="seg" id="segRate"><button data-v="6">10 Hz</button><button data-v="7">20 Hz</button></div>
     </div>
     <div class="row">
-      <div><label>Show all Bluetooth devices</label><small>Use if the sensor doesn't appear in the list</small></div>
+      <div><label>Show all Bluetooth devices</label><small>Lists every device when connecting. Use it if your sensor isn't in the list.</small></div>
       <input type="checkbox" id="showAll">
     </div>
     <div class="row">
@@ -372,11 +362,11 @@
 <div id="gate" class="hide" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
   <img class="slogo" src="data:image/webp;base64,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" alt="Red Dog Tractors">
   <div class="product" id="gateTitle">TILT TRAC<sup>™</sup></div>
-  <p>Enter the access code from the quick-start card in your Tilt Trac kit. You only need to do this once on this phone.</p>
+  <p>Enter the access code from page 2 of your TILT TRAC Quick Start Guide, then tap Unlock. You'll enter it once on each phone. Dashes are optional.</p>
   <input id="codeIn" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="TT-XXXX-XXXX" maxlength="16" aria-label="Access code">
   <button class="primary" id="btnUnlock">Unlock</button>
   <div id="codeErr" role="alert"></div>
-  <p style="font-size:13px;margin-top:10px">Need help? Contact Red Dog Tractors at <a href="mailto:info@reddogtractors.com" style="color:var(--text);font-weight:600">info@reddogtractors.com</a>.</p>
+  <p style="font-size:13px;margin-top:10px">Need help? Visit reddogtractors.com or email info@reddogtractors.com.</p>
 </div>
 
 <div id="splash" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
@@ -384,7 +374,7 @@
   <div class="product">TILT TRAC<sup>™</sup></div>
   <h2 id="splashTitle">Important Safety Notice</h2>
   <div class="legal">
-    <p><b>Tilt Trac is an operator aid that shows approximate implement and tractor angles. It is not a safety device.</b>
+    <p><b>The TILT TRAC app is an operator aid that shows approximate implement and tractor angles. It is not a safety device.</b>
       Do not rely on it, or on its alarms, to prevent tip-over, rollover, loss of load, or any other hazard.</p>
     <ul>
       <li>Displayed angles may be inaccurate or delayed because of sensor mounting, calibration, vibration,
@@ -394,14 +384,17 @@
       <li>Do not look at or handle your phone while the tractor is moving. Mount the phone securely where it does
         not block your view or the controls.</li>
       <li>Carry loads low, wear your seat belt with the ROPS raised, and keep bystanders clear.</li>
+      <li>Make all setup changes, including mounting the sensor and tapping Zero, with the tractor parked and the
+        parking brake set.</li>
     </ul>
-    <p>Tilt Trac is provided "AS IS," without warranties of any kind, express or implied, including warranties of
+    <p>The TILT TRAC app is provided "as is," without warranties of any kind, express or implied, including warranties of
       merchantability, fitness for a particular purpose, and accuracy. To the fullest extent permitted by law,
       Red Dog Vac Trac LLC, doing business as Red Dog Tractors, is not liable for any injury, death, property damage,
-      or other loss arising from the use of Tilt Trac. By tapping "I Understand," you accept these terms and assume
+      or other loss arising from the use of the TILT TRAC app. By tapping "I Understand — Continue," you accept these terms and assume
       all risk of use.</p>
-    <p class="fine">Tilt Trac is not affiliated with or endorsed by WitMotion. WitMotion is a trademark of its
-      respective owner.<br>Tilt Trac v1.6.3 · © 2026 Red Dog Vac Trac LLC. All rights reserved.</p>
+    <p class="fine">TILT TRAC, RED DOG TRACTORS, VAC TRAC and TOOL RAC are trademarks of Red Dog Vac Trac LLC.
+      TILT TRAC products are not affiliated with or endorsed by WitMotion. Bluefy is a third-party app.<br>
+      TILT TRAC app version 1.7 · © 2026 Red Dog Vac Trac LLC, doing business as Red Dog Tractors. All rights reserved.</p>
   </div>
   <button class="primary" id="btnAccept">I Understand — Continue</button>
 </div>
@@ -446,7 +439,7 @@
   const gateEl = document.getElementById('gate');
   let storedKey = null;
   try { storedKey = localStorage.getItem('tiltTracKey'); } catch (e) {}
-  if (!(storedKey && VALID.has(storedKey))) gateEl.classList.remove('hide');
+  const isUnlocked = () => !!(storedKey && VALID.has(storedKey));     // gate is shown after the safety notice
   async function tryUnlock() {
     const code = normCode(document.getElementById('codeIn').value);
     const err = document.getElementById('codeErr');
@@ -454,7 +447,7 @@
     const h = await hashCode(code);
     if (VALID.has(h)) {
       try { localStorage.setItem('tiltTracKey', h); } catch (e) {}
-      err.textContent = ''; gateEl.classList.add('hide');
+      storedKey = h; err.textContent = ''; gateEl.classList.add('hide');
     } else {
       err.textContent = 'That code wasn\'t recognized. Check it and try again.';
     }
@@ -545,62 +538,38 @@
 
   // implement: right-half dial, 0° = horizontal right, + up.
   // Bucket: ±90° drawn as ±90°. Pulled implement: ±7° magnified onto a ±60° arc.
-  const PULL_MAX = 7, PULL_ARC = 60;
+  const PULL_MAX = 7, PULL_ARC = 45;
   const isPulled = () => S.implType === 'pulled';
   const implMap = a => isPulled() ? a * PULL_ARC / PULL_MAX : a;           // reading -> drawn angle
   const implRange = () => isPulled() ? PULL_MAX : 90;
+  // where a reading sits on the dial: bucket = right-facing arc; pulled = left-facing arc (the tongue arrow points left)
+  const implAng = v => isPulled() ? 180 - implMap(v) : implMap(v);   // pulled: + = tongue (nose) up
   const limits = () => isPulled() ? { upper: S.upperP, lower: S.lowerP } : { upper: S.upper, lower: S.lower };
-  // Pulled implement: the drawbar swings about the tractor's hitch pin (PCX, 0), so the front of the implement
-  // (the hitch connection) rides a right-convex arc of radius PR midway between tractor and implement. + = front up.
-  const PCX = -50, PR = 70, PSCALE = 0.9;
-  const pullPt = (r, m) => P(PCX, 0, r, m);                                // point on the pitch arc
-  const placePulled = m => {
-    const [hx, hy] = pullPt(PR, m);
-    $('pulled').setAttribute('transform', `translate(${hx.toFixed(2)} ${hy.toFixed(2)}) rotate(${m}) scale(${PSCALE})`);
-    $('drawbar').setAttribute('x2', hx.toFixed(2)); $('drawbar').setAttribute('y2', hy.toFixed(2));
-  };
   function buildImplScale() {
     const g = $('implScale'); g.innerHTML = '';
-    const R0 = 100, top = implMap(implRange());
-    $('implCap').textContent = isPulled() ? 'IMPLEMENT PITCH' : 'IMPLEMENT';
-    $('pivotDot').style.display = isPulled() ? 'none' : '';
-    $('rearPivot').style.display = isPulled() ? '' : 'none';
-    const [nx, ny, dy] = isPulled() ? [-75, 80, 98] : [-62, 58, 78];        // readout position
-    $('implNum').setAttribute('x', nx); $('implNum').setAttribute('y', ny);
-    $('implDir').setAttribute('x', nx); $('implDir').setAttribute('y', dy);
-    if (isPulled()) {
-      el('path', { d: arc(PCX, 0, PR, -top, top), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
-      for (let v = -PULL_MAX; v <= PULL_MAX; v++) {
-        const m = implMap(v), major = [0, 5, 7].includes(Math.abs(v)), len = major ? 12 : 6;
-        const [x1, y1] = pullPt(PR, m), [x2, y2] = pullPt(PR + len, m);
-        el('line', { x1, y1, x2, y2, stroke: '#5a5555', 'stroke-width': major ? 2 : 1 }, g);
-        if (major && v !== 0) {
-          const [tx, ty] = pullPt(PR + 15, m);
-          el('text', { x: tx, y: ty + 3, 'text-anchor': 'start', class: 'tl' }, g).textContent = (v > 0 ? '+' : '') + v + '°';
-        }
-      }
-      $('bucket').style.display = 'none'; $('loaderArm').style.display = 'none';
-      $('pulled').style.display = ''; $('tractorStub').style.display = '';
-      placePulled(0);
-      return;
-    }
-    el('path', { d: arc(0, 0, R0, -top, top), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
+    const R0 = 100, rng = implRange();
+    el('path', { d: arc(0, 0, R0, implAng(-rng), implAng(rng)), fill: 'none', stroke: '#3a3636', 'stroke-width': 2 }, g);
     const ticks = isPulled() ? [-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7] : [-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90];
     const majors = isPulled() ? [-7,-5,0,5,7] : [-90,-45,0,45,90];
     for (const v of ticks) {
-      const m = implMap(v), major = majors.includes(v), len = major ? 12 : 6;
+      const m = implAng(v), major = majors.includes(v), len = major ? 12 : 6;
       const [x1, y1] = P(0, 0, R0, m), [x2, y2] = P(0, 0, R0 - len, m);
       el('line', { x1, y1, x2, y2, stroke: '#5a5555', 'stroke-width': major ? 2 : 1 }, g);
       if (major) {
         const [tx, ty] = P(0, 0, 110, m);
-        el('text', { x: tx, y: ty + 3, 'text-anchor': Math.abs(m) >= 85 ? 'middle' : 'start', class: 'tl' }, g)
+        const anchor = isPulled() ? 'end' : (Math.abs(m) >= 85 ? 'middle' : 'start');
+        el('text', { x: tx, y: ty + 3, 'text-anchor': anchor, class: 'tl' }, g)
           .textContent = (v > 0 ? '+' : '') + v + '°';
       }
     }
     $('bucket').style.display = isPulled() ? 'none' : '';
     $('loaderArm').style.display = isPulled() ? 'none' : '';
     $('pulled').style.display = isPulled() ? '' : 'none';
-    $('tractorStub').style.display = isPulled() ? '' : 'none';
+    // readout position and reference line per mode
+    const [nx, ny, dy] = isPulled() ? [30, 92, 112] : [-62, 58, 78];
+    $('implNum').setAttribute('x', nx); $('implNum').setAttribute('y', ny);
+    $('implDir').setAttribute('x', nx); $('implDir').setAttribute('y', dy);
+    $('implRef').setAttribute('x1', isPulled() ? -104 : -10); $('implRef').setAttribute('x2', isPulled() ? 120 : 106);
   }
 
   // bank: top arc centered on (0,10), ±45°, + = right side down (clockwise)
@@ -632,25 +601,16 @@
     const zi = $('implAlarmZones'); zi.innerHTML = '';
     const zone = (g, d) => el('path', { d, fill: 'none', stroke: '#ff3b30', 'stroke-width': 7, opacity: .7 }, g);
     const mark = (g, x1, y1, x2, y2) => el('line', { x1, y1, x2, y2, stroke: '#ff3b30', 'stroke-width': 2.5 }, g);
-    const L = limits(), rng = implRange(), top = implMap(rng);
-    if (isPulled()) {
-      for (const [lim, end] of [[L.upper, top], [L.lower, -top]]) {
-        if (lim === null || Math.abs(lim) >= rng) continue;
-        const m = implMap(lim);
-        zone(zi, arc(PCX, 0, PR, m, end));
-        const [a, b] = pullPt(PR - 6, m), [c, d] = pullPt(PR + 14, m); mark(zi, a, b, c, d);
-      }
-    } else {
+    const L = limits(), rng = implRange();
     if (L.upper !== null && L.upper < rng) {
-      const m = implMap(L.upper);
-      zone(zi, arc(0, 0, 100, m, top));
+      const m = implAng(L.upper);
+      zone(zi, arc(0, 0, 100, m, implAng(rng)));
       const [a, b] = P(0, 0, 86, m), [c, d] = P(0, 0, 106, m); mark(zi, a, b, c, d);
     }
     if (L.lower !== null && L.lower > -rng) {
-      const m = implMap(L.lower);
-      zone(zi, arc(0, 0, 100, m, -top));
+      const m = implAng(L.lower);
+      zone(zi, arc(0, 0, 100, m, implAng(-rng)));
       const [a, b] = P(0, 0, 86, m), [c, d] = P(0, 0, 106, m); mark(zi, a, b, c, d);
-    }
     }
     const zb = $('bankAlarmZones'); zb.innerHTML = '';
     const BL = bankLimit();
@@ -714,13 +674,11 @@
       $('implNum').setAttribute('font-size', t.length > 5 ? 36 : t.length > 4 ? 42 : 50);
       $('implNum').style.fill = ci;
       $('implDir').textContent = implAlarm ? (a > 0 ? 'ABOVE UPPER LIMIT' : 'BELOW LOWER LIMIT')
-                                : implOk ? 'Level' : isPulled() ? (a > 0 ? 'Front up ▲' : 'Front down ▼')
-                                : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
+                                : implOk ? 'Level' : (a > 0 ? 'Tilted up ▲' : 'Tilted down ▼');
       $('implDir').style.fill = implAlarm ? 'var(--bad)' : 'var(--muted)';
       const lim = implRange() * (isPulled() ? 1.07 : 95 / 90);
-      const m = implMap(Math.max(-lim, Math.min(lim, a)));
-      $('bucket').setAttribute('transform', `rotate(${-m})`);
-      if (isPulled()) placePulled(m);                                          // front rides the arc, body tilts by the pitch
+      const rot = `rotate(${(isPulled() ? 1 : -1) * implMap(Math.max(-lim, Math.min(lim, a)))})`;
+      $('bucket').setAttribute('transform', rot); $('pulled').setAttribute('transform', rot);
     }
     // bank
     const BL = bankLimit();
@@ -825,7 +783,7 @@
 
   function showNoBluetooth() {
     const m = $('msg');
-    m.innerHTML = 'This browser can\'t talk to Bluetooth sensors.<br>On iPhone, install the free <b>Bluefy</b> browser app, then open this page in it.'
+    m.innerHTML = 'This browser can\'t talk to Bluetooth sensors.<br>On iPhone, open this page in <b>Bluefy</b>, not Safari or Chrome. Tap Copy page link and paste it into Bluefy.'
       + '<div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">'
       + '<a href="https://apps.apple.com/app/id1492822055" style="text-decoration:none"><button>Get Bluefy</button></a>'
       + '<button id="btnCopy">Copy page link</button><button id="btnMsgClose">Close</button></div>'
@@ -882,7 +840,7 @@
 
   // ---- UI wiring ----
   let accepted = false;
-  $('btnAccept').onclick = () => { unlockAudio(); accepted = true; $('splash').classList.add('hide'); };
+  $('btnAccept').onclick = () => { unlockAudio(); accepted = true; $('splash').classList.add('hide'); if (!isUnlocked()) gateEl.classList.remove('hide'); };
   $('btnTestBeep').onclick = () => { unlockAudio(); beep(); setTimeout(beep, 300); setTimeout(beep, 600); };
   $('gBank').onclick = () => {
     unlockAudio();
@@ -890,7 +848,7 @@
     muteUntil = performance.now() < muteUntil ? 0 : performance.now() + 30000;   // tap again to un-silence
     render();
   };
-  const onConnect = () => { if (!accepted) return; unlockAudio(); wantConnected ? disconnect() : connect(); };
+  const onConnect = () => { if (!accepted || !isUnlocked()) return; unlockAudio(); wantConnected ? disconnect() : connect(); };
   const onZero = () => {
     if (sImpl === null) return;
     S.zero = sImpl; S.zeroBank = sBank; save(); render(); syncSettings();
